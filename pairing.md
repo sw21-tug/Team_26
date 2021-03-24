@@ -3,11 +3,10 @@ Dev 1: Balent, Patrick
 Dev 2: Doler, Manuel
 Dev 3: Fruhmann, Markus
 Dev 4: Gruber, René
-Dev 5: Holder, Lukas
-Dev 6: Kaimel, Tania
-Dev 7: Ludwig, Jakob Philipp
-Dev 8: Mujačić, Amir
-Dev 9: Schmidt, Marius
+Dev 5: Kaimel, Tania
+Dev 6: Ludwig, Jakob Philipp
+Dev 7: Mujačić, Amir
+Dev 8: Schmidt, Marius
 
 
 | Syntax      | Dev 1   	  | Dev 2   	  | Dev 3   	  | Dev 4   	  | Dev 5   	  | Dev 6   	  | Dev 7   	  | Dev 8   	  |

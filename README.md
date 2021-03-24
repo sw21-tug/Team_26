@@ -6,13 +6,12 @@
 - Project Owner
   - Florian Michelic
 - Scrum Master
-  - ???
+  - Holder, Lukas
 - Developers
   - Balent, Patrick
   - Doler, Manuel
   - Fruhmann, Markus
   - Gruber, René
-  - Holder, Lukas
   - Kaimel, Tania
   - Ludwig, Jakob Philipp
   - Mujačić, Amir
