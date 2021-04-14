@@ -35,5 +35,8 @@ With *TimeLog*, users can:
    
 ### Features
 
+ - [TL 1] App start
+ - [TL 12] Mockups
+ - [TL 13] Database Wrapper
 
 
