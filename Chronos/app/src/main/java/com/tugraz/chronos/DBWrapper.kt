@@ -3,60 +3,89 @@ package com.tugraz.chronos
 import java.util.*
 
 data class Task(
-        val id: Int,
-        var title: String,
-        var description: String,
-        var date: Date
+    var title: String,
+    var description: String,
+    var date: Date
 )
 
 data class TaskGroup(
-        val id: Int,
-        var title: String,
-        var tasks: IntArray
+    var title: String,
+    var tasks: MutableList<Int>
 )
 
 class DBWrapper {
 
-    var task_list : Array<Task> = arrayOf()
-    var task_group_list : Array<TaskGroup> = arrayOf()
+    var task_list : MutableMap<Int, Task> = mutableMapOf()
+    var task_group_list : MutableMap<Int, TaskGroup> = mutableMapOf()
 
-    fun addTask(id: Int, title: String, description: String, date: Date) {
-        // TODO: Implement function
+    fun addTask(id: Int, title: String, description: String, date: Date): Int {
+        task_list.put(id, Task(title, description, date))
+        return id
     }
 
-    fun modifyTask(id: Int, title: String, description: String, date: Date) {
-        // TODO: Implement function
+    fun modifyTask(id: Int, title: String, description: String, date: Date): Int {
+        if(task_list.containsKey(id)){
+            task_list[id] = Task(title, description, date)
+            return id
+        }
+        return -1
     }
 
-    fun deleteTask(id: Int) {
-        // TODO: Implement function
+    fun deleteTask(id: Int): Int {
+        if(task_list.containsKey(id)){
+            task_list.remove(id)
+            return id;
+        }
+        return -1
     }
 
-    fun addTaskGroup(id: Int, title: String) {
-        // TODO: Implement function
+    fun addTaskGroup(id: Int, title: String): Int {
+        task_group_list.put(id, TaskGroup(title, mutableListOf()))
+        return id
     }
 
-    fun modifyTaskGroup(id: Int, title: String) {
-        // TODO: Implement function
+    fun modifyTaskGroup(id: Int, title: String): Int {
+        if(task_group_list.containsKey(id)){
+            var taskGroup : TaskGroup = task_group_list[id]!!
+            taskGroup.title = title
+            task_group_list[id] = taskGroup
+            return id
+        }
+        return -1
     }
 
-    fun deleteTaskGroup(id: Int) {
-        // TODO: Implement function
+    fun deleteTaskGroup(id: Int): Int {
+        if(task_group_list.containsKey(id)){
+            task_group_list.remove(id)
+            return id
+        }
+        return -1
     }
 
-    fun getTasks() {
-        // TODO: Implement function
+    fun getTasks(): MutableMap<Int, Task> {
+        return task_list
     }
 
-    fun getTaskGroups() {
-        // TODO: Implement function
+    fun getTaskGroups(): MutableMap<Int, TaskGroup> {
+        return task_group_list
     }
 
-    fun getTaskFromTaskGroup(id: Int) {
-        // TODO: Implement function
+    fun getTaskFromTaskGroup(id: Int): MutableList<Int> {
+        if(task_group_list.containsKey(id)){
+            return task_group_list[id]!!.tasks
+        }
+        return mutableListOf()
     }
 
-    fun addTaskToTaskGroup(group_id: Int, task_id: Int) {
-        // TODO: Implement function
+    fun addTaskToTaskGroup(group_id: Int, task_id: Int): Int {
+        if(task_group_list.containsKey(group_id)){
+            if(task_list.containsKey(task_id)){
+                var taskGroup : TaskGroup = task_group_list[group_id]!!
+                taskGroup.tasks.add(task_id)
+                task_group_list[group_id] = taskGroup
+                return group_id
+            }
+        }
+        return -1
     }
 }
