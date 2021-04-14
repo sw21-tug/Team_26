@@ -97,12 +97,6 @@ class DBWrapperTest {
         assertEquals(0, ret)
 
         // Try to add task group that already exists, return error
-        ret = dbWrapper.modifyTaskGroup(0, dummyTaskGroup.title)
-        assertEquals(1, dbWrapper.task_group_list.size)
-        assertEquals(dummyTaskGroup, dbWrapper.task_group_list[0])
-        assertEquals(-1, ret)
-
-        // Try to add task group that already exists, return error
         ret = dbWrapper.addTaskGroup(0, dummyTaskGroup.title)
         assertEquals(1, dbWrapper.task_group_list.size)
         assertEquals(dummyTaskGroup, dbWrapper.task_group_list[0])
@@ -156,27 +150,150 @@ class DBWrapperTest {
     }
 
     @Test
-    fun test_getTasks() {
-        // TODO: Implement function
-    }
-
-    @Test
-    fun test_getTaskGroups() {
-        // TODO: Implement function
-    }
-
-    @Test
-    fun test_getTaskFromTaskGroup() {
-        // TODO: Implement function
-    }
-
-    @Test
     fun test_addTaskToTaskGroup() {
-        // TODO: Implement function
+        // Check that dbwrapper is empty
+        assertEquals(0, dbWrapper.task_list.size)
+        assertEquals(0, dbWrapper.task_group_list.size)
+
+        // Add task that doesn't exist, return id
+        var ret = dbWrapper.addTask(0, dummyTask.title, dummyTask.description, dummyTask.date)
+        assertEquals(1, dbWrapper.task_list.size)
+        assertEquals(dummyTask, dbWrapper.task_list[0])
+        assertEquals(0, ret)
+
+        // Add task group that doesn't exist, return id
+        ret = dbWrapper.addTaskGroup(0, dummyTaskGroup.title)
+        assertEquals(1, dbWrapper.task_group_list.size)
+        assertEquals(dummyTaskGroup, dbWrapper.task_group_list[0])
+        assertEquals(0, ret)
+
+        // Add existing task to existing task group, return id
+        ret = dbWrapper.addTaskToTaskGroup(0, 0)
+        assertEquals(1, dbWrapper.task_list.size)
+        assertEquals(dummyTask, dbWrapper.task_list[0])
+        assertEquals(1, dbWrapper.task_group_list.size)
+        val new_group = TaskGroup(dummyTaskGroup.title, mutableListOf(0))
+        assertEquals(new_group, dbWrapper.task_group_list[0])
+        assertEquals(0, ret)
+
+        // Add non-existing task to existing task group, return error
+        ret = dbWrapper.addTaskToTaskGroup(0, 15)
+        assertEquals(1, dbWrapper.task_list.size)
+        assertEquals(dummyTask, dbWrapper.task_list[0])
+        assertEquals(1, dbWrapper.task_group_list.size)
+        assertEquals(new_group, dbWrapper.task_group_list[0])
+        assertEquals(-1, ret)
+
+        // Add existing task to non-existing task group, return error
+        ret = dbWrapper.addTaskToTaskGroup(15, 0)
+        assertEquals(1, dbWrapper.task_list.size)
+        assertEquals(dummyTask, dbWrapper.task_list[0])
+        assertEquals(1, dbWrapper.task_group_list.size)
+        assertEquals(new_group, dbWrapper.task_group_list[0])
+        assertEquals(-1, ret)
+
+        // Add non-existing task to non-existing task group, return error
+        ret = dbWrapper.addTaskToTaskGroup(15, 15)
+        assertEquals(1, dbWrapper.task_list.size)
+        assertEquals(dummyTask, dbWrapper.task_list[0])
+        assertEquals(1, dbWrapper.task_group_list.size)
+        assertEquals(new_group, dbWrapper.task_group_list[0])
+        assertEquals(-1, ret)
+    }
+
+    @Test
+    fun test_getTasksFromTaskGroup() {
+        // Check that dbwrapper is empty
+        assertEquals(0, dbWrapper.task_list.size)
+        assertEquals(0, dbWrapper.task_group_list.size)
+
+        // Try to get tasks, but everything empty
+        var tasks_ret = dbWrapper.getTasksFromTaskGroup(0)
+        assertEquals(tasks_ret, mutableListOf<Int>())
+
+        // Add task that doesn't exist, return id
+        var ret = dbWrapper.addTask(0, dummyTask.title, dummyTask.description, dummyTask.date)
+        assertEquals(1, dbWrapper.task_list.size)
+        assertEquals(dummyTask, dbWrapper.task_list[0])
+        assertEquals(0, ret)
+
+        // Add task group that doesn't exist, return id
+        ret = dbWrapper.addTaskGroup(0, dummyTaskGroup.title)
+        assertEquals(1, dbWrapper.task_group_list.size)
+        assertEquals(dummyTaskGroup, dbWrapper.task_group_list[0])
+        assertEquals(0, ret)
+
+        // Add existing task to existing task group, return id
+        ret = dbWrapper.addTaskToTaskGroup(0, 0)
+        assertEquals(1, dbWrapper.task_list.size)
+        assertEquals(dummyTask, dbWrapper.task_list[0])
+        assertEquals(1, dbWrapper.task_group_list.size)
+        val new_group = TaskGroup(dummyTaskGroup.title, mutableListOf(0))
+        assertEquals(new_group, dbWrapper.task_group_list[0])
+        assertEquals(0, ret)
+
+        // Get valid list of tasks
+        tasks_ret = dbWrapper.getTasksFromTaskGroup(0)
+        assertEquals(tasks_ret, mutableListOf<Int>(0))
     }
 
     @Test
     fun test_removeTaskFromTaskGroup() {
-        // TODO: Implement function
+        // Check that dbwrapper is empty
+        assertEquals(0, dbWrapper.task_list.size)
+        assertEquals(0, dbWrapper.task_group_list.size)
+
+        // Add task that doesn't exist, return id
+        var ret = dbWrapper.addTask(0, dummyTask.title, dummyTask.description, dummyTask.date)
+        assertEquals(1, dbWrapper.task_list.size)
+        assertEquals(dummyTask, dbWrapper.task_list[0])
+        assertEquals(0, ret)
+
+        // Add task group that doesn't exist, return id
+        ret = dbWrapper.addTaskGroup(0, dummyTaskGroup.title)
+        assertEquals(1, dbWrapper.task_group_list.size)
+        assertEquals(dummyTaskGroup, dbWrapper.task_group_list[0])
+        assertEquals(0, ret)
+
+        // Add existing task to existing task group, return id
+        ret = dbWrapper.addTaskToTaskGroup(0, 0)
+        assertEquals(1, dbWrapper.task_list.size)
+        assertEquals(dummyTask, dbWrapper.task_list[0])
+        assertEquals(1, dbWrapper.task_group_list.size)
+        val new_group = TaskGroup(dummyTaskGroup.title, mutableListOf(0))
+        assertEquals(new_group, dbWrapper.task_group_list[0])
+        assertEquals(0, ret)
+
+        // Remove non-existing task from non-existing task group, return error
+        ret = dbWrapper.removeTaskFromTaskGroup(15, 15)
+        assertEquals(1, dbWrapper.task_list.size)
+        assertEquals(dummyTask, dbWrapper.task_list[0])
+        assertEquals(1, dbWrapper.task_group_list.size)
+        assertEquals(new_group, dbWrapper.task_group_list[0])
+        assertEquals(-1, ret)
+
+        // Remove existing task from non-existing task group, return error
+        ret = dbWrapper.removeTaskFromTaskGroup(15, 0)
+        assertEquals(1, dbWrapper.task_list.size)
+        assertEquals(dummyTask, dbWrapper.task_list[0])
+        assertEquals(1, dbWrapper.task_group_list.size)
+        assertEquals(new_group, dbWrapper.task_group_list[0])
+        assertEquals(-1, ret)
+
+        // Remove non-existing task from existing task group, return error
+        ret = dbWrapper.removeTaskFromTaskGroup(0, 15)
+        assertEquals(1, dbWrapper.task_list.size)
+        assertEquals(dummyTask, dbWrapper.task_list[0])
+        assertEquals(1, dbWrapper.task_group_list.size)
+        assertEquals(new_group, dbWrapper.task_group_list[0])
+        assertEquals(-1, ret)
+
+        // Remove existing task from existing task group, return group id
+        ret = dbWrapper.removeTaskFromTaskGroup(0, 0)
+        assertEquals(1, dbWrapper.task_list.size)
+        assertEquals(dummyTask, dbWrapper.task_list[0])
+        assertEquals(1, dbWrapper.task_group_list.size)
+        assertEquals(dummyTaskGroup, dbWrapper.task_group_list[0])
+        assertEquals(0, ret)
     }
 }

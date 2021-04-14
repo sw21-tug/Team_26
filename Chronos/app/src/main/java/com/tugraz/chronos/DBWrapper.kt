@@ -18,48 +18,76 @@ class DBWrapper {
     var task_list : MutableMap<Int, Task> = mutableMapOf()
     var task_group_list : MutableMap<Int, TaskGroup> = mutableMapOf()
 
+    fun getNewTaskIdFromDb(): Int {
+        // TODO: DB return the new id for task + unittest
+        return 0
+    }
+
+    fun getNewTaskGroupIdFromDb(): Int {
+        // TODO: DB return the new id for task group + unittest
+        return 0
+    }
+
+    fun loadDataFromDb() {
+        // TODO: Load tasks and task groups from DB + unittest
+    }
+
+    fun saveDataToDb() {
+        // TODO: Save tasks and task groups to DB + unittest
+    }
+
     fun addTask(id: Int, title: String, description: String, date: Date): Int {
+        if (task_list.containsKey(id)) {
+            return -1
+        }
+
         task_list.put(id, Task(title, description, date))
         return id
     }
 
     fun modifyTask(id: Int, title: String, description: String, date: Date): Int {
-        if(task_list.containsKey(id)){
-            task_list[id] = Task(title, description, date)
-            return id
+        if(!task_list.containsKey(id)) {
+            return -1;
         }
-        return -1
+
+        task_list[id] = Task(title, description, date)
+        return id
     }
 
     fun deleteTask(id: Int): Int {
-        if(task_list.containsKey(id)){
-            task_list.remove(id)
-            return id;
+        if(!task_list.containsKey(id)) {
+            return -1;
         }
-        return -1
+
+        task_list.remove(id)
+        return id
     }
 
     fun addTaskGroup(id: Int, title: String): Int {
+        if (task_group_list.containsKey(id)) {
+            return -1
+        }
+
         task_group_list.put(id, TaskGroup(title, mutableListOf()))
         return id
     }
 
     fun modifyTaskGroup(id: Int, title: String): Int {
-        if(task_group_list.containsKey(id)){
-            var taskGroup : TaskGroup = task_group_list[id]!!
-            taskGroup.title = title
-            task_group_list[id] = taskGroup
-            return id
+        if (!task_group_list.containsKey(id)){
+            return -1
         }
-        return -1
+
+        task_group_list[id] = TaskGroup(title, task_group_list[id]!!.tasks)
+        return id
     }
 
     fun deleteTaskGroup(id: Int): Int {
-        if(task_group_list.containsKey(id)){
-            task_group_list.remove(id)
-            return id
+        if (!task_group_list.containsKey(id)){
+            return -1
         }
-        return -1
+
+        task_group_list.remove(id)
+        return id
     }
 
     fun getTasks(): MutableMap<Int, Task> {
@@ -70,22 +98,30 @@ class DBWrapper {
         return task_group_list
     }
 
-    fun getTaskFromTaskGroup(id: Int): MutableList<Int> {
-        if(task_group_list.containsKey(id)){
-            return task_group_list[id]!!.tasks
+    fun getTasksFromTaskGroup(id: Int): MutableList<Int> {
+        if (!task_group_list.containsKey(id)){
+            return mutableListOf()
         }
-        return mutableListOf()
+
+        return task_group_list[id]!!.tasks
     }
 
     fun addTaskToTaskGroup(group_id: Int, task_id: Int): Int {
-        if(task_group_list.containsKey(group_id)){
-            if(task_list.containsKey(task_id)){
-                var taskGroup : TaskGroup = task_group_list[group_id]!!
-                taskGroup.tasks.add(task_id)
-                task_group_list[group_id] = taskGroup
-                return group_id
-            }
+        if (!task_group_list.containsKey(group_id) || !task_list.containsKey(task_id)) {
+            return -1
         }
-        return -1
+        task_group_list[group_id]!!.tasks.add(task_id)
+        return group_id
+    }
+
+    fun removeTaskFromTaskGroup(group_id: Int, task_id: Int): Int {
+        if (!task_group_list.containsKey(group_id) ||
+                !task_list.containsKey(task_id) ||
+                !task_group_list[group_id]!!.tasks.contains(task_id)) {
+            return -1
+        }
+
+        task_group_list[group_id]!!.tasks.remove(task_id)
+        return group_id
     }
 }
