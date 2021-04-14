@@ -9,13 +9,13 @@ Dev 7: Mujačić, Amir
 Dev 8: Schmidt, Marius
 
 
-| Syntax      | Dev 1   	  | Dev 2   	  | Dev 3   	  | Dev 4   	  | Dev 5   	  | Dev 6   	  | Dev 7   	  | Dev 8   	  |
+| Syntax      | Balent, Patrick   	  | Doler, Manuel  	  | Fruhmann, Markus   	  | Gruber, René   	  | Kaimel, Tania   	  | Ludwig, Jakob Philipp   	  | Mujačić, Amir   	  | Schmidt, Marius   	  |
 | :---        |    :----:   |    :----:   |    :----:   |    :----:   |    :----:   |    :----:   |    :----:   |    :----:   |
-| Dev 1       | X           | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       |
-| Dev 2       | HH:MM       | X           | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       |
-| Dev 3       | HH:MM       | HH:MM       | X           | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       |
-| Dev 4       | HH:MM       | HH:MM       | HH:MM       | X           | HH:MM       | HH:MM       | HH:MM       | HH:MM       |
-| Dev 5       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | X           | HH:MM       | HH:MM       | HH:MM       |
-| Dev 6       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | X           | HH:MM       | HH:MM       |
-| Dev 7       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | X           | HH:MM       |
-| Dev 8       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | X           |
+| Balent, Patrick      | X           | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       |
+| Doler, Manuel       | HH:MM       | X           | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       |
+| Fruhmann, Markus      | HH:MM       | HH:MM       | X           | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       |
+| Gruber, René       | HH:MM       | HH:MM       | HH:MM       | X           | HH:MM       | HH:MM       | HH:MM       | HH:MM       |
+| Kaimel, Tania       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | X           | HH:MM       | HH:MM       | HH:MM       |
+| Ludwig, Jakob Philipp       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | X           | HH:MM       | HH:MM       |
+| Mujačić, Amir      | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | X           | HH:MM       |
+| Schmidt, Marius       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | HH:MM       | X           |
