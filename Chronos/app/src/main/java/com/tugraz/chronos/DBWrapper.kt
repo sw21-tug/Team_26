@@ -46,10 +46,12 @@ class DBWrapper {
 
     fun modifyTaskGroup(id: Int, title: String): Int {
         if(task_group_list.containsKey(id)){
-            var taskGroup : TaskGroup = task_group_list[id]!!
-            taskGroup.title = title
-            task_group_list[id] = taskGroup
-            return id
+            var taskGroup : TaskGroup? = task_group_list[id]
+            taskGroup?.let {
+                taskGroup.title = title
+                task_group_list[id] = taskGroup
+                return id
+            }
         }
         return -1
     }
@@ -72,7 +74,8 @@ class DBWrapper {
 
     fun getTaskFromTaskGroup(id: Int): MutableList<Int> {
         if(task_group_list.containsKey(id)){
-            return task_group_list[id]!!.tasks
+            var taskGroup : TaskGroup? = task_group_list[id]
+            taskGroup?.let { return taskGroup.tasks }
         }
         return mutableListOf()
     }
@@ -80,10 +83,12 @@ class DBWrapper {
     fun addTaskToTaskGroup(group_id: Int, task_id: Int): Int {
         if(task_group_list.containsKey(group_id)){
             if(task_list.containsKey(task_id)){
-                var taskGroup : TaskGroup = task_group_list[group_id]!!
-                taskGroup.tasks.add(task_id)
-                task_group_list[group_id] = taskGroup
-                return group_id
+                var taskGroup : TaskGroup? = task_group_list[group_id]
+                taskGroup?.let {
+                    taskGroup.tasks.add(task_id)
+                    task_group_list[group_id] = taskGroup
+                    return group_id
+                }
             }
         }
         return -1
