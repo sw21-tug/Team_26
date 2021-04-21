@@ -15,4 +15,8 @@ object ChronosContract {
         const val COLUMN_NAME_TITLE = "title"
         const val COLUMN_NAME_TASKS = "tasks"
     }
+
+    object TaskGroupTasks : BaseColumns {
+
+    }
 }
