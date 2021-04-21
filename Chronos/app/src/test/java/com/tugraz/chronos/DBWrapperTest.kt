@@ -2,15 +2,16 @@ package com.tugraz.chronos
 
 import org.junit.After
 import org.junit.Test
-
 import org.junit.Assert.*
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class DBWrapperTest {
 
     var dbWrapper: DBWrapper = DBWrapper()
-    val dummyTask: Task = Task("TestTask", "TestDescirption", Date())
-    val modified_task: Task = Task("ModifiedTitle", "ModifiedDesc", Date(1234))
+    val dummyTask: Task = Task("TestTask", "TestDescirption", LocalDateTime.now())
+    val modified_task: Task = Task("ModifiedTitle", "ModifiedDesc", LocalDateTime.MIN)
     val dummyTaskGroup: TaskGroup = TaskGroup("TestGroup", mutableListOf())
     val modified_group: TaskGroup = TaskGroup("ModifiedGroup", mutableListOf())
 
