@@ -64,6 +64,7 @@ class SplashActivityTest {
     @After
     fun tearDown() {
         IdlingRegistry.getInstance().unregister(idlingResource)
+        Intents.release()
     }
 
     @Test
