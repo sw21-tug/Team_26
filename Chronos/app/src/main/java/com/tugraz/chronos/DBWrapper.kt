@@ -1,11 +1,13 @@
 package com.tugraz.chronos
 
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 data class Task(
     var title: String,
     var description: String,
-    var date: Date
+    var date: LocalDateTime
 )
 
 data class TaskGroup(
@@ -36,12 +38,12 @@ class DBWrapper {
         // TODO: Save tasks and task groups to DB + unittest
     }
 
-    fun addTask(title: String, description: String, date: Date): Int {
+    fun addTask(title: String, description: String, date: LocalDateTime): Int {
         val id = getNewTaskIdFromDb()
         return addTask(id, title, description, date)
     }
 
-    fun addTask(id: Int, title: String, description: String, date: Date): Int {
+    fun addTask(id: Int, title: String, description: String, date: LocalDateTime): Int {
         loadDataFromDb()
         if (task_list.containsKey(id)) {
             return -1
@@ -52,7 +54,7 @@ class DBWrapper {
         return id
     }
 
-    fun modifyTask(id: Int, title: String, description: String, date: Date): Int {
+    fun modifyTask(id: Int, title: String, description: String, date: LocalDateTime): Int {
         loadDataFromDb()
         if(!task_list.containsKey(id)) {
             return -1;
