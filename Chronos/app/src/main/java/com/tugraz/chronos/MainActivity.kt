@@ -1,5 +1,6 @@
 package com.tugraz.chronos
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -82,19 +83,10 @@ class MainActivity : AppCompatActivity() {
         val relativeLayout = findViewById<RelativeLayout>(R.id.parentRelative)
         relativeLayout.addView(scrollView)
 
-        val fab = FloatingActionButton(this)
-        fab.id = 0
-        fab.layoutParams = RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT
-        )
-
-        val fabHolder = LinearLayout(this)
-        fabHolder.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
-        fabHolder.gravity = Gravity.END or Gravity.BOTTOM
-
-
-        fabHolder.addView(fab)
-        relativeLayout.addView(fabHolder)
+        val fab = findViewById<FloatingActionButton>(R.id.floatingActionButton)
+        fab.setOnClickListener {
+            startActivity(Intent(this, CreateTaskActivity::class.java))
+            finish()
+        }
     }
 }
