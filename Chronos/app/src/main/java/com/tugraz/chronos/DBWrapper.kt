@@ -1,11 +1,13 @@
 package com.tugraz.chronos
 
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 data class Task(
     var title: String,
     var description: String,
-    var date: Date
+    var date: LocalDateTime
 )
 
 data class TaskGroup(
@@ -36,12 +38,12 @@ class DBWrapper {
         // TODO: Save tasks and task groups to DB + unittest
     }
 
-    fun addTask(title: String, description: String, date: Date): Int {
+    fun addTask(title: String, description: String, date: LocalDateTime): Int {
         val id = getNewTaskIdFromDb()
         return addTask(id, title, description, date)
     }
 
-    fun addTask(id: Int, title: String, description: String, date: Date): Int {
+    fun addTask(id: Int, title: String, description: String, date: LocalDateTime): Int {
         loadDataFromDb()
         if (task_list.containsKey(id)) {
             return -1
@@ -52,7 +54,7 @@ class DBWrapper {
         return id
     }
 
-    fun modifyTask(id: Int, title: String, description: String, date: Date): Int {
+    fun modifyTask(id: Int, title: String, description: String, date: LocalDateTime): Int {
         loadDataFromDb()
         if(!task_list.containsKey(id)) {
             return -1;
@@ -95,10 +97,17 @@ class DBWrapper {
         if (!task_group_list.containsKey(id)){
             return -1
         }
+        if(task_group_list.containsKey(id)){
+            val taskGroup : TaskGroup? = task_group_list[id]
 
-        task_group_list[id] = TaskGroup(title, task_group_list[id]!!.tasks)
-        saveDataToDb()
-        return id
+            taskGroup?.let {
+                taskGroup.title = title
+                task_group_list[id] = TaskGroup(title, taskGroup?.tasks)
+                saveDataToDb()
+                return id
+            }
+        }
+        return -1
     }
 
     fun deleteTaskGroup(id: Int): Int {
@@ -122,13 +131,15 @@ class DBWrapper {
         return task_group_list
     }
 
-    fun getTasksFromTaskGroup(id: Int): MutableList<Int> {
+    fun getTasksFromTaskGroup(id: Int): MutableList<Int>? {
         loadDataFromDb()
         if (!task_group_list.containsKey(id)){
             return mutableListOf()
         }
-
-        return task_group_list[id]!!.tasks
+        task_group_list[id]?.let{
+            return task_group_list[id]?.tasks
+        }
+        return null
     }
 
     fun addTaskToTaskGroup(group_id: Int, task_id: Int): Int {
@@ -136,22 +147,31 @@ class DBWrapper {
         if (!task_group_list.containsKey(group_id) || !task_list.containsKey(task_id)) {
             return -1
         }
-
-        task_group_list[group_id]!!.tasks.add(task_id)
-        saveDataToDb()
-        return group_id
+        var taskGroup : TaskGroup? = task_group_list[group_id]
+        taskGroup?.let {
+            taskGroup.tasks.add(task_id)
+            taskGroup.tasks.add(task_id)
+            task_group_list[group_id] = taskGroup
+            saveDataToDb()
+            return group_id
+        }
+        return -1
     }
 
     fun removeTaskFromTaskGroup(group_id: Int, task_id: Int): Int {
         loadDataFromDb()
         if (!task_group_list.containsKey(group_id) ||
-                !task_list.containsKey(task_id) ||
-                !task_group_list[group_id]!!.tasks.contains(task_id)) {
+            !task_list.containsKey(task_id) ||
+            !task_group_list[group_id]!!.tasks.contains(task_id)) {
             return -1
         }
 
-        task_group_list[group_id]!!.tasks.remove(task_id)
-        saveDataToDb()
-        return group_id
+        val taskGroup = task_group_list[group_id]
+        taskGroup?.let {
+            taskGroup.tasks.remove(task_id)
+            saveDataToDb()
+            return group_id
+        }
+        return -1
     }
 }
