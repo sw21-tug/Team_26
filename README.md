@@ -39,5 +39,6 @@ With *TimeLog*, users can:
  - [TL 12] Mockups
  - [TL 13] Database Wrapper
  - [TL 3] Create a Task
+ - [TL 2] Task View
 
 
