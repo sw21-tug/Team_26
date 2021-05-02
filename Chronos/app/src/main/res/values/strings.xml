@@ -17,6 +17,10 @@
     <string name="placeholder">Placeholder</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="group_name">Group Name</string>
+    <string name="create_group">Create Group</string>
+    <string name="select_color_group">Select Color</string>
+    <string name="add_tasks_to_group">Add Tasks</string>
 
     <!--
     This string is used for square devices and overridden by hello_world in

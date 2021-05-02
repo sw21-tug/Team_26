@@ -11,6 +11,8 @@
     </group>
 
     <item android:id="@+id/createGroup"
-        android:title="@string/createGroup"/>
+        android:title="@string/createGroup"
+        android:icon="@drawable/ic_add">
+    </item>
 
 </menu>
