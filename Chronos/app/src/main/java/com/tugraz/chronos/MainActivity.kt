@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
@@ -15,7 +16,12 @@ import android.widget.ScrollView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.navigation.NavigationView
 import com.tugraz.chronos.model.entities.Task
 import com.tugraz.chronos.model.service.ChronosService
 import java.time.LocalDate
@@ -26,7 +32,7 @@ import java.util.*
 
 lateinit var chronosService: ChronosService
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
@@ -34,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        initNavigationDrawer()
 
         chronosService = ChronosService(this)
 
@@ -100,6 +107,41 @@ class MainActivity : AppCompatActivity() {
 
             item_counter += 1
             linearLayout.addView(button)
+        }
+    }
+    private fun initNavigationDrawer() {
+        val drawer: DrawerLayout = findViewById(R.id.drawer_layout)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        val toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close)
+        drawer.addDrawerListener(toggle)
+        toggle.syncState()
+
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        navigationView.setNavigationItemSelectedListener(this)
+
+    }
+
+    // used for create Group Button in drawer menu
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.createGroup -> {
+                startActivity(Intent(this, CreateGroupActivity::class.java))
+                finish()
+            }
+        }
+        return true
+    }
+
+    // used for closing the drawer menu
+    override fun onBackPressed() {
+        val drawer: DrawerLayout = findViewById(R.id.drawer_layout)
+        if(drawer.isDrawerOpen(GravityCompat.START)){
+            drawer.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
         }
     }
 }

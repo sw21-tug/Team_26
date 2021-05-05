@@ -8,12 +8,13 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.snackbar.Snackbar
+import com.tugraz.chronos.model.service.ChronosService
 
 class CreateGroupActivity : AppCompatActivity(),  View.OnClickListener {
 
     lateinit var btn_create: Button
     lateinit var et_group_name: EditText
-    var db_wrapper = DBWrapper()
+    lateinit var chronosService: ChronosService
     lateinit var coordinator: CoordinatorLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +24,7 @@ class CreateGroupActivity : AppCompatActivity(),  View.OnClickListener {
         btn_create.setOnClickListener(this)
         et_group_name = findViewById(R.id.group_name)
         coordinator = findViewById(R.id.cl_ct)
+        chronosService = ChronosService(this)
     }
 
     override fun onClick(v: View?) {
@@ -36,9 +38,9 @@ class CreateGroupActivity : AppCompatActivity(),  View.OnClickListener {
             return
         }
 
-        val db_success = db_wrapper.addTaskGroup(et_group_name.text.toString())
+        val db_success = chronosService.addTaskGroup(et_group_name.text.toString()).taskGroup.taskGroupId
 
-        if (db_success == -1)
+        if (db_success.toInt() == -1)
         {
             Snackbar.make(
                 coordinator,

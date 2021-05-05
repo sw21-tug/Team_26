@@ -30,8 +30,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CreateGroupActivity"
-            android:label="@string/title_activity_create_group">
+            android:name=".CreateGroupActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
