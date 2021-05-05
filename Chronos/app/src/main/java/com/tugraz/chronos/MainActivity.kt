@@ -16,6 +16,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 import androidx.annotation.RequiresApi
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.tugraz.chronos.model.entities.Task
 import com.tugraz.chronos.model.service.ChronosService
 
 lateinit var chronosService: ChronosService
@@ -46,8 +47,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun sortTasks(task_list: List<Task>): List<Task> {
+        return task_list.sortedBy { value -> value.date }
+    }
+
     fun loadTasks() {
-        val task_list = chronosService.getAllTasks()
+        val task_list = sortTasks(chronosService.getAllTasks())
         val linearLayout : LinearLayout = findViewById(R.id.ll_ma_sv)
         linearLayout.removeAllViews()
         var item_counter = 0
