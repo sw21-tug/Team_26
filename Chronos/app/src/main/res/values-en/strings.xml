@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Chronos</string>
+    <string name="create_task">Create a Task</string>
+    <string name="title">Title</string>
+    <string name="create">Create</string>
+    <string name="date">Date</string>
+    <string name="group">Group</string>
+    <string name="description">Description</string>
+    <string name="err_title_empty">Error: Title can\'t be empty</string>
+    <string name="err_date_empty">Error: Date can\'t be empty!</string>
+    <string name="err_db_insert">Error: Couldn\'t insert the data into the database!</string>
+    <string name="change_language">Change Language</string>
+    <string name="options">Options</string>
+</resources>
