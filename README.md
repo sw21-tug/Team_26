@@ -3,7 +3,7 @@
 
 ### Team 26
 
-- Project Owner
+- Product Owner
   - Florian Michelic
 - Scrum Master
   - Holder, Lukas
@@ -40,5 +40,8 @@ With *TimeLog*, users can:
  - [TL 13] Database Wrapper
  - [TL 3] Create a Task
  - [TL 2] Task View
+ - [TL 4] Task List Information
+ - [TL 8] Create Task Group
+ - [TL 11] Database
 
 
