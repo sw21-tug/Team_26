@@ -9,4 +9,8 @@
     <string name="err_title_empty">Error: Title can\'t be empty!</string>
     <string name="err_date_empty">Error: Date can\'t be empty!</string>
     <string name="err_db_insert">Error: Couldn\'t insert the data into the database!</string>
+    <string name="change_language">Change Language</string>
+    <string name="options">Options</string>
+    <string name="english" translatable="false">English</string>
+    <string name="russian" translatable="false">Russian</string>
 </resources>
