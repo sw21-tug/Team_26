@@ -71,7 +71,7 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun setDateTime(dt: Calendar) {
-        val df: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'")
+        val df: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.ENGLISH)
         et_date.setText(df.format(dt.time))
     }
 
