@@ -12,6 +12,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.LocalDateTime
 import java.util.*
 
 @RunWith(AndroidJUnit4::class)
@@ -75,7 +76,7 @@ class ChronosServiceTest {
 
     @Test
     fun addTaskFromService() {
-        val dbTask = chronosService.addTask(0, "This is a service test", "This is a Service Test Description", Date())
+        val dbTask = chronosService.addTask(0, "This is a service test", "This is a Service Test Description", LocalDateTime.parse("-999999999-01-01T00:00:00"))
 
         assert(dbTask.taskId != 0L) { "Creating and inserting a new Task via ChronosService went wrong" }
     }
@@ -94,8 +95,8 @@ class ChronosServiceTest {
         val newGroupID = -1L
         val newTitle = "This is a changed Service Task Text Title"
         val newDescription = "This is a changed Service Description Text"
-        val newDate = Date()
-        newDate.time += 3600
+        val newDate = LocalDateTime.parse("-999999999-01-01T00:00:00")
+        newDate.plusMinutes(3600)
         val updateTask = taskList[taskList.lastIndex]
         val groupID = updateTask.groupId
         val sizeBefore = groupList[groupList.lastIndex].taskList.size
@@ -104,7 +105,7 @@ class ChronosServiceTest {
         assert(updateTask.groupId == 0L) { "Updating GroupID from Task via ChronosService went wrong." }
         assert(updateTask.title == newTitle) { "Updating Title from Task via ChronosService went wrong." }
         assert(updateTask.description == newDescription) { "Updating Description from Task via ChronosService went wrong." }
-        assert(updateTask.date == newDate.time.toString()) { "Updating Date from Task via ChronosService went wrong." }
+        assert(updateTask.date == newDate.toString()) { "Updating Date from Task via ChronosService went wrong." }
         assert(sizeBefore - 1 == runBlocking { db.taskGroupDao().getGroupByID(groupID) }.taskList.size) { "Updating Group's Task via ChronosService went wrong." }
     }
 
@@ -113,8 +114,8 @@ class ChronosServiceTest {
         val newGroupID = groupList[groupList.lastIndex - 1].taskGroup.taskGroupId
         val newTitle = "This is a changed Service Task Text Title"
         val newDescription = "This is a changed Service Description Text"
-        val newDate = Date()
-        newDate.time += 3600
+        val newDate = LocalDateTime.parse("-999999999-01-01T00:00:00")
+        newDate.plusMinutes(3600)
         val updateTask = taskList[taskList.lastIndex]
         val groupID = updateTask.groupId
         val sizeBefore = groupList[groupList.lastIndex].taskList.size
@@ -124,7 +125,7 @@ class ChronosServiceTest {
         assert(updateTask.groupId == newGroupID) { "Updating GroupID from Task via ChronosService went wrong." }
         assert(updateTask.title == newTitle) { "Updating Title from Task via ChronosService went wrong." }
         assert(updateTask.description == newDescription) { "Updating Description from Task via ChronosService went wrong." }
-        assert(updateTask.date == newDate.time.toString()) { "Updating Date from Task via ChronosService went wrong." }
+        assert(updateTask.date == newDate.toString()) { "Updating Date from Task via ChronosService went wrong." }
         assert(sizeBefore - 1 == runBlocking { db.taskGroupDao().getGroupByID(groupID) }.taskList.size) { "Updating Group's Task (Retracting old Group) via ChronosService went wrong." }
         assert(changedSizedBefore + 1 == runBlocking { db.taskGroupDao().getGroupByID(newGroupID) }.taskList.size) { "Updating Group's Task (Assigning new Group) via ChronosService went wrong." }
     }

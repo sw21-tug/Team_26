@@ -9,6 +9,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.snackbar.Snackbar
+import com.tugraz.chronos.model.service.ChronosService
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -23,11 +24,13 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var et_date: EditText
     lateinit var sp_group: Spinner
     lateinit var coordinator: CoordinatorLayout
-    var db_wrapper = DBWrapper()
+    lateinit var chronosService: ChronosService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_task)
+
+        chronosService = ChronosService(this)
 
         btn_create = findViewById(R.id.btn_ct_save)
         et_title = findViewById(R.id.et_ct_title)
@@ -42,9 +45,8 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         val groups = mutableListOf<String>(getString(R.string.group))
-        for ((_, v) in db_wrapper.getTaskGroups())
-        {
-            groups.add(v.title)
+        for (group in chronosService.getAllGroups()) {
+            groups.add(group.taskGroup.title)
         }
 
         var adapter= ArrayAdapter(this, android.R.layout.simple_list_item_1, groups)
@@ -95,11 +97,11 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
             return
         }
 
-        val db_success = db_wrapper.addTask(et_title.text.toString(),
-                         et_description.text.toString(),
-                         LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME))
+        val db_success = chronosService.addTask(0L, et_title.text.toString(),
+                et_description.text.toString(),
+                LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME))
 
-        if (db_success == -1)
+        if (db_success.taskId != 0L)
         {
             Snackbar.make(
                 coordinator,
