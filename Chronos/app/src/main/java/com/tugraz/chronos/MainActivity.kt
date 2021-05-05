@@ -5,28 +5,17 @@ import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.ScrollView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.time.LocalDateTime
-
 
 import androidx.annotation.RequiresApi
+import com.tugraz.chronos.model.service.ChronosService
 
-var dbWrapper: DBWrapper = DBWrapper()
-
-@RequiresApi(Build.VERSION_CODES.O)
-val dummyTask: Task = Task("TestTask", "TestDescirption", LocalDateTime.now())
-
-fun addDummys() {
-    for (item in 0..20) {
-        dbWrapper.addTask(item, dummyTask.title + item, dummyTask.description, dummyTask.date)
-    }
-}
+lateinit var chronosService: ChronosService
 
 class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -34,10 +23,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // TODO remove dummys
-        addDummys()
+        chronosService = ChronosService(this)
 
-        val task_list: MutableMap<Int, Task> = dbWrapper.getTasks()
+        val task_list = chronosService.getAllTasks()
 
         val scrollView = ScrollView(this)
         val layoutParams = LinearLayout.LayoutParams(
@@ -58,11 +46,11 @@ class MainActivity : AppCompatActivity() {
 
             val button = Button(this)
             button.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 220)
-            button.id = item.key
+            button.id = item.taskId.toInt()
 
-            val title = task_list[item.key]?.title
-            val description = task_list[item.key]?.description
-            val date = task_list[item.key]?.date?.toLocalDate()
+            val title = item.title
+            val description = item.description
+            val date = item.date
             val space = "    "
             val text = title + space + description + "\n\n" + date
 
@@ -70,7 +58,8 @@ class MainActivity : AppCompatActivity() {
             button.setTextColor(Color.BLACK)
             button.textSize = 15F
 
-            if (item.key % 2 == 0) {
+            //TODO: refactor - if task is deleted in database - id is not reused
+            if (item.taskId.toInt() % 2 == 0) {
                 button.setBackgroundColor(Color.LTGRAY)
             } else {
                 button.setBackgroundColor(Color.GRAY)
