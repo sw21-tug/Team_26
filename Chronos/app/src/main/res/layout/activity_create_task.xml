@@ -33,7 +33,8 @@
             android:background="@drawable/chronos_edit_text"
             android:layout_gravity="center"
             android:padding="20dp"
-            android:layout_marginBottom="20dp"/>
+            android:layout_marginBottom="20dp"
+            android:importantForAutofill="no" />
 
         <EditText
             android:id="@+id/et_ct_date"
@@ -45,7 +46,8 @@
             android:layout_gravity="center"
             android:padding="20dp"
             android:layout_marginBottom="20dp"
-            android:hint="@string/date" />
+            android:hint="@string/date"
+            android:importantForAutofill="no" />
 
         <Spinner
             android:id="@+id/sp_ct_group"
@@ -70,7 +72,8 @@
             android:padding="20dp"
             android:layout_marginBottom="20dp"
             android:lines="10"
-            android:hint="@string/description" />
+            android:hint="@string/description"
+            android:autofillHints="" />
 
         <Button
             android:id="@+id/btn_ct_save"

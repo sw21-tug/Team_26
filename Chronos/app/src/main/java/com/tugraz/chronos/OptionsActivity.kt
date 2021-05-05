@@ -17,7 +17,7 @@ class OptionsActivity : AppCompatActivity() {
 
     lateinit var change_language: Button
 
-    fun changeLanguage(language: Language){
+    private fun setLocale(language: Language){
         Locale.setDefault(language.locale)
         val config = Configuration()
         config.locale = language.locale //TODO update to higher android version, change to config.setLocale
@@ -27,20 +27,27 @@ class OptionsActivity : AppCompatActivity() {
         editor.apply()
     }
 
+    private fun loadLocate() {
+        val sharedPreferences = getSharedPreferences ( name: "Sett")
+
+    }
+
     fun languageDialog(){
         val builder = AlertDialog.Builder(this);
         val languages = arrayOf(getString(R.string.english), getString(R.string.russian))
         builder.setTitle(R.string.change_language)
         builder.setSingleChoiceItems(languages, -1){ dialog, which ->
             if(which == 0){
-                changeLanguage(Language.ENGLISH)
+                setLocale(Language.ENGLISH)
                 recreate()
             } else if(which == 1){
-                changeLanguage(Language.RUSSIAN)
+                setLocale(Language.RUSSIAN)
                 recreate()
             }
             dialog.dismiss()
         }
+        val dialog = builder.create()
+        dialog.show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
