@@ -13,4 +13,15 @@
     <string name="options">Options</string>
     <string name="english" translatable="false">English</string>
     <string name="russian" translatable="false">Russian</string>
+    <string name="Group1">Group1</string>
+    <string name="Group2">Group2</string>
+    <string name="Group3">Group3</string>
+    <string name="createGroup">Add new Group</string>
+    <string name="placeholder">Placeholder</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="group_name">Group Name</string>
+    <string name="create_group">Create Group</string>
+    <string name="select_color_group">Select Color</string>
+    <string name="add_tasks_to_group">Add Tasks</string>
 </resources>
