@@ -31,13 +31,15 @@ import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import com.tugraz.chronos.model.entities.Task
 import kotlinx.coroutines.runBlocking
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 @RunWith(AndroidJUnit4::class)
 class MainActivityTest {
 
     var db: ChronosDB = ChronosDB.getTestDB(ApplicationProvider.getApplicationContext())!!
-    val dummyTask: Task = Task(0, "TestTask", "TestDescirption", "1234")
-    val modified_task: Task = Task(0, "ModifiedTitle", "ModifiedDesc", "5678")
+    val dummyTask: Task = Task(0, "TestTask", "TestDescirption", LocalDateTime.now().plusDays(1).toString())
+    val modified_task: Task = Task(0, "ModifiedTitle", "ModifiedDesc", LocalDateTime.now().plusDays(2).toString())
 
     var dummy_id = 0
     var modified_id = 0
@@ -74,20 +76,36 @@ class MainActivityTest {
 
         onView(withId(R.id.srl_ma)).perform(swipeDown());
 
-        var text = dummyTask.title +
-                "    " +
-                dummyTask.description +
-                "\n" +
-                dummyTask.date
+        var date1 = LocalDateTime.parse(
+            dummyTask.date,
+            DateTimeFormatter.ISO_DATE_TIME
+        )
+        var date2 = LocalDateTime.now()
+        var input: Long = date2.until(date1, ChronoUnit.SECONDS)
+        var days = input / 86400
+        var hours = (input % 86400 ) / 3600
+        var minutes = ((input % 86400 ) % 3600 ) / 60
+        var seconds = ((input % 86400 ) % 3600 ) % 60
+
+        val space = "    "
+        var timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
+        var text = dummyTask.title + space + dummyTask.description + "\n" + timeUntil
 
         onView(withId(dummy_id)).check(matches(isDisplayed()))
         onView(withId(dummy_id)).check(matches(withText(text)))
 
-        text = modified_task.title +
-                "    " +
-                modified_task.description +
-                "\n" +
-                modified_task.date
+        date1 = LocalDateTime.parse(
+            modified_task.date,
+            DateTimeFormatter.ISO_DATE_TIME
+        )
+        date2 = LocalDateTime.now()
+        input = date2.until(date1, ChronoUnit.SECONDS)
+        days = input / 86400
+        hours = (input % 86400 ) / 3600
+        minutes = ((input % 86400 ) % 3600 ) / 60
+        seconds = ((input % 86400 ) % 3600 ) % 60
+        timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
+        text = modified_task.title + space + modified_task.description + "\n" + timeUntil
 
         onView(withId(modified_id)).check(matches(isDisplayed()))
         onView(withId(modified_id)).check(matches(withText(text)))
