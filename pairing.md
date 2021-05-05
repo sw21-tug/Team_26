@@ -17,5 +17,5 @@ Dev 8: Schmidt, Marius
 | Gruber, René       | HH:MM       | HH:MM       | HH:MM       | X           | 14:00       | HH:MM       | 08:00       | 16:00       |
 | Kaimel, Tania       | 16:00       | HH:MM       | HH:MM       | 14:00       | X           | HH:MM       | HH:MM       | HH:MM       |
 | Ludwig, Jakob Philipp       | HH:MM       | 08:00       | 08:00        | HH:MM       | HH:MM       | X           | 08:00       | 14:00       |
-| Mujačić, Amir      | HH:MM       | 05:00       | HH:MM       | 08:00       | HH:MM       | 08:00       | X           | 08:00       |
-| Schmidt, Marius       | 14:00      | HH:MM       | HH:MM       | 16:00       | HH:MM       | 14:00      | 08:00       | X           |
+| Mujačić, Amir      | 14:00       | 05:00       | HH:MM       | 08:00       | HH:MM       | 08:00       | X           | 08:00       |
+| Schmidt, Marius       |HH:MM       | HH:MM       | HH:MM       | 16:00       | HH:MM       | 14:00      | 08:00       | X           |
