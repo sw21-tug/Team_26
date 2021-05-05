@@ -2,51 +2,56 @@ package com.tugraz.chronos
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
-import androidx.appcompat.app.ActionBarDrawerToggle
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
-import com.google.android.material.internal.NavigationMenuItemView
-import com.google.android.material.navigation.NavigationView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.google.android.material.snackbar.Snackbar
 
-class CreateGroupActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class CreateGroupActivity : AppCompatActivity(),  View.OnClickListener {
+
+    lateinit var btn_create: Button
+    lateinit var et_group_name: EditText
+    var db_wrapper = DBWrapper()
+    lateinit var coordinator: CoordinatorLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_group)
-        val drawer: DrawerLayout = findViewById(R.id.drawer_layout)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-
-        val toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open,
-        R.string.navigation_drawer_close)
-        drawer.addDrawerListener(toggle)
-        toggle.syncState()
-
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
-        navigationView.setNavigationItemSelectedListener(this)
-
+        btn_create = findViewById(R.id.btn_create_group)
+        btn_create.setOnClickListener(this)
+        et_group_name = findViewById(R.id.group_name)
+        coordinator = findViewById(R.id.cl_ct)
     }
 
-    // used for create Group Button in drawer menu
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
-            R.id.createGroup -> {
-                startActivity(Intent(this, CreateGroupActivity::class.java))
-            }
+    override fun onClick(v: View?) {
+        if (et_group_name.text.toString().isEmpty())
+        {
+           Snackbar.make(
+                coordinator,
+                R.string.err_title_empty,
+                Snackbar.LENGTH_SHORT
+            ).show()
+            return
         }
-        return true
-    }
 
-    // used for closing the drawer menu
-    override fun onBackPressed() {
-        val drawer: DrawerLayout = findViewById(R.id.drawer_layout)
-        if(drawer.isDrawerOpen(GravityCompat.START)){
-            drawer.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
+        val db_success = db_wrapper.addTaskGroup(et_group_name.text.toString())
+
+        if (db_success == -1)
+        {
+            Snackbar.make(
+                coordinator,
+                R.string.err_db_insert,
+                Snackbar.LENGTH_SHORT
+            ).show()
+            return
+        }
+        else
+        {
+            startActivity(Intent(this,MainActivity::class.java))
+            finish()
         }
     }
+
 }
