@@ -101,7 +101,7 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
                 et_description.text.toString(),
                 LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME))
 
-        if (db_success.taskId != 0L)
+        if (db_success.taskId == 0L)
         {
             Snackbar.make(
                 coordinator,
