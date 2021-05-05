@@ -18,6 +18,11 @@ import androidx.annotation.RequiresApi
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.tugraz.chronos.model.entities.Task
 import com.tugraz.chronos.model.service.ChronosService
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.*
 
 lateinit var chronosService: ChronosService
 
@@ -30,6 +35,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        chronosService = ChronosService(this)
+
         swipeRefreshLayout = findViewById(R.id.srl_ma)
         swipeRefreshLayout.setOnRefreshListener {
             loadTasks()
@@ -38,7 +45,6 @@ class MainActivity : AppCompatActivity() {
             }, 500)
         }
 
-        chronosService = ChronosService(this)
         loadTasks()
         val fab = findViewById<FloatingActionButton>(R.id.btn_ma_add)
         fab.setOnClickListener {
@@ -53,20 +59,34 @@ class MainActivity : AppCompatActivity() {
 
     fun loadTasks() {
         val task_list = sortTasks(chronosService.getAllTasks())
-        val linearLayout : LinearLayout = findViewById(R.id.ll_ma_sv)
+        val linearLayout: LinearLayout = findViewById(R.id.ll_ma_sv)
         linearLayout.removeAllViews()
         var item_counter = 0
         for (item in task_list) {
 
             val button = Button(this)
-            button.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 220)
+            button.layoutParams =
+                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 220)
             button.id = item.taskId.toInt()
 
             val title = item.title
             val description = item.description
-            val date = item.date
+            val date1 = LocalDateTime.parse(
+                item.date,
+                DateTimeFormatter.ISO_DATE_TIME
+            )
+            val date2 = LocalDateTime.now()
+
+            val input: Long = date2.until(date1, ChronoUnit.SECONDS)
+
+            val days = input / 86400
+            val hours = (input % 86400 ) / 3600
+            val minutes = ((input % 86400 ) % 3600 ) / 60
+            val seconds = ((input % 86400 ) % 3600 ) % 60
+
             val space = "    "
-            val text = title + space + description + "\n" + date
+            val timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
+            val text = title + space + description + "\n" + timeUntil
 
             button.text = text
             button.setTextColor(Color.BLACK)
