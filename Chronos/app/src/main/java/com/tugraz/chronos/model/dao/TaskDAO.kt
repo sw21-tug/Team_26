@@ -6,14 +6,17 @@ import com.tugraz.chronos.model.entities.Task
 @Dao
 interface TaskDAO {
     @Query("SELECT * FROM task")
-    fun getAllTasks(): List<Task>
+    suspend fun getAllTasks(): List<Task>
 
-    @Insert
-    fun insertTask(task: Task): Long
+    @Query("SELECT * FROM task WHERE taskId = :id")
+    suspend fun getTaskByID(id: Long): Task
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTask(task: Task): Long
 
     @Update
-    fun updateTask(task: Task)
+    suspend fun updateTask(task: Task): Void
 
     @Delete
-    fun deleteTask(task: Task)
+    suspend fun deleteTask(task: Task): Void
 }

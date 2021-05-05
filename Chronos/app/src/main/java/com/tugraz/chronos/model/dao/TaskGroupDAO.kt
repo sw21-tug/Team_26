@@ -2,18 +2,24 @@ package com.tugraz.chronos.model.dao
 
 import androidx.room.*
 import com.tugraz.chronos.model.entities.TaskGroup
+import com.tugraz.chronos.model.entities.TaskGroupRelation
 
 @Dao
-interface TaskGroupDAO {
+interface TaskGroupDAO{
+    @Transaction
     @Query("SELECT * FROM TaskGroup")
-    fun getAllGroups(): List<TaskGroup>
+    suspend fun getAllGroups(): List<TaskGroupRelation>
 
-    @Insert
-    fun insertGroup(group: TaskGroup): Long
+    @Transaction
+    @Query("SELECT * FROM TaskGroup WHERE taskGroupId = :id")
+    suspend fun getGroupByID(id: Long): TaskGroupRelation
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertGroup(group: TaskGroup): Long
 
     @Update
-    fun updateGrup(group: TaskGroup)
+    suspend fun updateGroup(group: TaskGroup): Void
 
     @Delete
-    fun deleteGroup(group: TaskGroup)
+    suspend fun deleteGroup(group: TaskGroup): Void
 }
