@@ -1,81 +1,57 @@
 package com.tugraz.chronos
 
-import android.content.ContentValues
-import android.provider.BaseColumns
 import android.util.Log
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.tugraz.chronos.model.ChronosContract.Tasks
-import com.tugraz.chronos.model.ChronosContract.TaskGroups
-//import com.tugraz.chronos.model.ChronosContract.TaskGroupRelation
-import com.tugraz.chronos.model.ChronosDBHelper
-import com.tugraz.chronos.model.entities.TaskGroupRelation
+import kotlinx.coroutines.*
+import com.tugraz.chronos.model.database.ChronosDB
+import com.tugraz.chronos.model.entities.Task
+import com.tugraz.chronos.model.entities.TaskGroup
+import com.tugraz.chronos.model.service.ChronosService
 import org.junit.After
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 class DatabaseTest {
+    private var db: ChronosDB = ChronosDB.getTestDB(ApplicationProvider.getApplicationContext())!!
+    private var fdb = Firebase.database
 
-    private var database = Firebase.database
-    private var context = InstrumentationRegistry.getInstrumentation().targetContext
-    private var writeableDb = ChronosDBHelper(context).writableDatabase
-    private var readableDb = ChronosDBHelper(context).readableDatabase
-    private var numOfTasks = 5;
+    private lateinit var group: TaskGroup
+    private lateinit var task: Task
 
     @Before
-    fun setUp() {
-        // Create a few tasks for testing
-        val tasks = mutableListOf<Int>()
-
-        for (elements in 1..numOfTasks) {
-            val values = ContentValues().apply {
-                put(Tasks.COLUMN_NAME_TITLE, "Test Entry $elements")
-                put(Tasks.COLUMN_NAME_DATE, "" + Calendar.getInstance().time)
-                put(Tasks.COLUMN_NAME_DESCR, "This is a Test Description for entry $elements")
-            }
-
-            val elementId = writeableDb?.insert(Tasks.TABLE_NAME, null, values)
-
-            if (elementId != null) {
-                tasks.add(elementId.toInt())
-            }
-        }
-
-        // Create some task group for testing
-        var values = ContentValues().apply {
-            put(TaskGroups.COLUMN_NAME_TITLE, "Test Group1")
-        }
-        values = ContentValues().apply {
-            put(TaskGroups.COLUMN_NAME_TITLE, "Test Group2")
-        }
-
-        for (elements in 1..numOfTasks) {
-            if (elements %  2 == 0) {
-                var values2 = ContentValues().apply {
-//                    put(TaskGroupRelation.COLUMN_TASK_GROUP_ID, "")
-                }
-            }
-        }
+    fun setup() {
+        group = TaskGroup("This is a Test Group")
+        task = Task(0, "This is a Test Task", "Description", "")
     }
 
     @After
-    fun tearDown() {
-        writeableDb.delete(Tasks.TABLE_NAME, null, null)
+    fun teardown() = runBlocking {
+        val taskList = db.taskDao().getAllTasks()
+        val groupList = db.taskGroupDao().getAllGroups()
+
+        for (groupEntry in groupList) {
+            for (taskEntry in groupEntry.taskList) {
+                taskEntry.groupId = 0
+                db.taskDao().updateTask(taskEntry)
+            }
+            db.taskGroupDao().deleteGroup(groupEntry.taskGroup)
+        }
+
+        taskList.forEach {db.taskDao().deleteTask(it)}
     }
 
     @Test
     fun onlineDatabaseConnection()  {
         val testString = "This is a test"
-        val myRef = database.getReference("Connection Test")
+        val myRef = fdb.getReference("Connection Test")
         myRef.setValue(testString)
 
-        database.reference.child("Connection Test").get().addOnSuccessListener {
+        fdb.reference.child("Connection Test").get().addOnSuccessListener {
             Log.i("success", "${it.value}")
             assert(testString == it.value)
         }.addOnFailureListener{
@@ -85,136 +61,136 @@ class DatabaseTest {
     }
 
     @Test
-    fun insertDataIntoLocalDatabase() {
-        val values = ContentValues().apply {
-            put(Tasks.COLUMN_NAME_TITLE, "Test Entry")
-            put(Tasks.COLUMN_NAME_DATE, "" + Calendar.getInstance().time)
-            put(Tasks.COLUMN_NAME_DESCR, "This is a Test Description")
-        }
+    fun insertGroupLocalDatabase() = runBlocking {
+        val id = db.taskGroupDao().insertGroup(group)
 
-        val newRowId = writeableDb?.insert(Tasks.TABLE_NAME, null, values)
-        assert(newRowId != (-1).toLong()) {"Returned an invalid ID (-1)"}
-    }
-
-//    @Test
-//    fun readDataFromLocalDatabase() {
-//        val selectCols = arrayOf(
-//            BaseColumns._ID,
-//            Tasks.COLUMN_NAME_TITLE,
-//            Tasks.COLUMN_NAME_DESCR,
-//            Tasks.COLUMN_NAME_DATE
-//        )
-//
-//        val sortOrder = "${Tasks.COLUMN_NAME_DATE} DESC"
-//
-//        val cursor = readableDb.query(
-//            Tasks.TABLE_NAME,
-//            selectCols,
-//            null,
-//            null,
-//            null,
-//            null,
-//            sortOrder
-//        )
-//
-//        Assert.assertTrue(cursor.moveToNext())
-//        Assert.assertEquals(numOfTasks, cursor.count)
-//    }
-
-    @Test
-    fun deleteFromLocalDatabase() {
-        val rowToDelete = 1
-        val selection = "${BaseColumns._ID} LIKE ?"
-        val selectionArgs = arrayOf(rowToDelete.toString())
-
-        val deletedRows = writeableDb.delete(Tasks.TABLE_NAME, selection, selectionArgs)
-        Assert.assertEquals(rowToDelete, deletedRows)
-
-        val selectCols = arrayOf(BaseColumns._ID)
-
-        val cursor = readableDb.query(
-            Tasks.TABLE_NAME,
-            selectCols,
-            null,
-            null,
-            null,
-            null,
-            null
-        )
-
-        Assert.assertTrue(cursor.moveToNext())
-        Assert.assertEquals(numOfTasks - 1, cursor.count)
+        assert(db.taskGroupDao().getGroupByID(id).taskGroup.title == group.title){"The inserted and retrieved tasks are different."}
     }
 
     @Test
-    fun updateLocalDatabase() {
-        val rowToUpdate = 1
-        val title = "I'm updated!"
-        val values = ContentValues().apply {
-            put(Tasks.COLUMN_NAME_TITLE, title)
-        }
+    fun modifyGroupLocalDatabase() = runBlocking {
+        val id = db.taskGroupDao().insertGroup(group)
 
-        val selection = "${BaseColumns._ID} LIKE ?"
-        val selectionArgs = arrayOf(rowToUpdate.toString())
-        val count = writeableDb.update(
-            Tasks.TABLE_NAME,
-            values,
-            selection,
-            selectionArgs
-        )
+        val title = "This is another Test Group"
+        val dbGroup = db.taskGroupDao().getGroupByID(id)
+        dbGroup.taskGroup.title = title
+        db.taskGroupDao().updateGroup(dbGroup.taskGroup)
 
-        Assert.assertEquals(1, count)
-
-        val selectCols = arrayOf(BaseColumns._ID, Tasks.COLUMN_NAME_TITLE)
-
-        val cursor = readableDb.query(
-            Tasks.TABLE_NAME,
-            selectCols,
-            null,
-            null,
-            null,
-            null,
-            null
-        )
-
-        Assert.assertTrue(cursor.moveToNext())
-
-        val idIndex = cursor.getColumnIndex(BaseColumns._ID)
-        val titleIndex = cursor.getColumnIndex(Tasks.COLUMN_NAME_TITLE)
-
-        while (cursor.getInt(idIndex) != rowToUpdate) {
-            Assert.assertTrue(cursor.moveToNext())
-        }
-
-        Assert.assertEquals(title, cursor.getString(titleIndex))
+        assert(db.taskGroupDao().getGroupByID(id).taskGroup.title == title) {"There is a difference in the title of the modified group."}
     }
 
-//    @Test
-//    fun insertTaskGroupIntoLocalDatabase() {
-//        val taskGroupValues = ContentValues().apply {
-//            put(TaskGroups.COLUMN_NAME_TITLE, "Test Task Group")
-//        }
-//
-//        val rowNum = writeableDb?.insert(TaskGroups.TABLE_NAME, null, taskGroupValues)
-//
-//        Assert.assertNotEquals(
-//            (-1),
-//            rowNum
-//        )
-//
-//        for (taskId in 1..(numOfTasks / 2)) {
-//            val values = ContentValues().apply {
-//                put(TaskGroupRelation.TASK_GROUP_ID, rowNum)
-//                put(TaskGroupRelation.TASK_ID, taskId)
-//            }
-//
-//            Assert.assertNotEquals(
-//                (-1),
-//                writeableDb?.insert(TaskGroupRelation.TABLE_NAME, null, values)
-//            )
-//        }
-//
-//        writeableDb.delete(TaskGroups.TABLE_NAME, null, null)
-//        writeableDb.delete(TaskGroupRelation.TABLE_NAME, null, null)
-//    }
+    @Test
+    fun deleteGroupLocalDatabase() = runBlocking {
+        val id = db.taskGroupDao().insertGroup(group)
+        val dbGroup = db.taskGroupDao().getGroupByID(id)
+
+        val lengthBefore = db.taskGroupDao().getAllGroups().size
+        for (taskEntry in dbGroup.taskList) {
+            taskEntry.groupId = 0
+            db.taskDao().updateTask(taskEntry)
+        }
+        db.taskGroupDao().deleteGroup(dbGroup.taskGroup)
+        val lengthAfter = db.taskGroupDao().getAllGroups().size
+
+        assert(lengthAfter == lengthBefore - 1) {"Deleting a Group from the database did not work."}
+    }
+
+    @Test
+    fun insertTaskLocalDatabase() = runBlocking {
+        val id = db.taskDao().insertTask(task)
+
+        val dbTask = db.taskDao().getTaskByID(id)
+        assert(dbTask.groupId == task.groupId) {"The inserted groupID title differs from the original one."}
+        assert(dbTask.title == task.title) {"The inserted Task title differs from the original one."}
+        assert(dbTask.description == task.description) {"The inserted Task description differs from the original one."}
+        assert(dbTask.date == task.date) {"The inserted Task date differs from the original one."}
+    }
+
+    @Test
+    fun modifyTaskLocalDatabase() = runBlocking {
+        val id = db.taskDao().insertTask(task)
+        val dbTask = db.taskDao().getTaskByID(id)
+
+        val title = "This is another Test Task"
+        val description = "Another Description"
+        val date = ""
+        dbTask.title = title
+        dbTask.description = description
+        dbTask.date = date
+        db.taskDao().updateTask(dbTask)
+
+        assert(dbTask.title == title) {"There is a difference in the title of the modified task."}
+        assert(dbTask.description == description) {"There is a difference in the description of the modified task."}
+        assert(dbTask.date == date) {"There is a difference in the date of the modified task."}
+    }
+
+    @Test
+    fun deleteTaskLocalDatabase() = runBlocking {
+        val id = db.taskDao().insertTask(task)
+        val dbTask = db.taskDao().getTaskByID(id)
+
+        val lengthBefore = db.taskDao().getAllTasks().size
+        db.taskDao().deleteTask(dbTask)
+        val lengthAfter = db.taskDao().getAllTasks().size
+
+        assert(lengthAfter == lengthBefore - 1) {"Deleting a Group from the database did not work."}
+    }
+
+    @Test
+    fun assignTaskToGroupLocalDatabase() = runBlocking {
+        val groupId = db.taskGroupDao().insertGroup(group)
+        task.groupId = groupId
+        val taskId = db.taskDao().insertTask(task)
+
+        val dbGroup = db.taskGroupDao().getGroupByID(groupId)
+        val dbTask = db.taskDao().getTaskByID(taskId)
+
+        assert(dbGroup.taskList.contains(dbTask)) {"Assigning a Task to a present group went wrong."}
+    }
+
+    @Test
+    fun unassignTaskOfGroupLocalDatabase() = runBlocking {
+        val groupId = db.taskGroupDao().insertGroup(group)
+        task.groupId = groupId
+        val taskId = db.taskDao().insertTask(task)
+
+        var dbGroup = db.taskGroupDao().getGroupByID(groupId)
+        val dbTask = db.taskDao().getTaskByID(taskId)
+
+        assert(dbGroup.taskList.contains(dbTask)) {"Assigning a Task to a present group went wrong."}
+
+        for (taskEntry in dbGroup.taskList) {
+            taskEntry.groupId = task.taskId
+            db.taskDao().updateTask(taskEntry)
+        }
+        dbGroup = db.taskGroupDao().getGroupByID(groupId)
+
+        assert(dbGroup.taskList.isEmpty()) {"Removing a task from an existing group went wrong."}
+    }
+
+    @Test
+    fun modifyAssignedTaskOfGroupLocalDatabase() = runBlocking {
+        val groupId = db.taskGroupDao().insertGroup(group)
+        task.groupId = groupId
+        val taskId = db.taskDao().insertTask(task)
+
+        var dbTaskOfGroup = task
+        for (taskEntry in db.taskGroupDao().getGroupByID(groupId).taskList) {
+            if (taskEntry.taskId == taskId) {
+                dbTaskOfGroup = taskEntry
+            }
+        }
+        assert(dbTaskOfGroup.taskId != task.taskId) {"Something went wrong when searching for an registered task for a group."}
+
+        val title = "This is another Test Task"
+        val description = "Another description"
+        val date = ""
+        dbTaskOfGroup.title = title
+        dbTaskOfGroup.description = description
+        dbTaskOfGroup.date = date
+        db.taskDao().updateTask(dbTaskOfGroup)
+        val modDbTask = db.taskDao().getTaskByID(taskId)
+
+        assert(modDbTask == dbTaskOfGroup) {"Updating a task from inside a group went wrong."}
+    }
 }
