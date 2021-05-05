@@ -9,7 +9,10 @@
     <string name="err_title_empty">Error: Title can\'t be empty!</string>
     <string name="err_date_empty">Error: Date can\'t be empty!</string>
     <string name="err_db_insert">Error: Couldn\'t insert the data into the database!</string>
-    <string name="title_activity_create_group">CreateGroupActivity</string>
+    <string name="change_language">Change Language</string>
+    <string name="options">Options</string>
+    <string name="english" translatable="false">English</string>
+    <string name="russian" translatable="false">Russian</string>
     <string name="Group1">Group1</string>
     <string name="Group2">Group2</string>
     <string name="Group3">Group3</string>
@@ -21,10 +24,4 @@
     <string name="create_group">Create Group</string>
     <string name="select_color_group">Select Color</string>
     <string name="add_tasks_to_group">Add Tasks</string>
-
-    <!--
-    This string is used for square devices and overridden by hello_world in
-    values-round/strings.xml for round devices.
-    -->
-    <string name="hello_world">Hello Square World!</string>
 </resources>
