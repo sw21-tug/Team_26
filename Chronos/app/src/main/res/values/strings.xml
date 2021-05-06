@@ -11,8 +11,8 @@
     <string name="err_db_insert">Error: Couldn\'t insert the data into the database!</string>
     <string name="change_language">Change Language</string>
     <string name="options">Options</string>
-    <string name="english" translatable="false">English</string>
-    <string name="russian" translatable="false">Russian</string>
+    <string name="english">English</string>
+    <string name="russian">Russian</string>
     <string name="Group1">Group1</string>
     <string name="Group2">Group2</string>
     <string name="Group3">Group3</string>

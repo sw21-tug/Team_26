@@ -1,35 +1,51 @@
 package com.tugraz.chronos
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
 
 class OptionsActivity : AppCompatActivity() {
 
-    enum class Language(val string: String, val locale: Locale = Locale(string)){
-        ENGLISH("en"),
-        RUSSIAN("ru")
-    }
-
     lateinit var change_language: Button
 
-    private fun setLocale(language: Language){
-        Locale.setDefault(language.locale)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        loadLocale()
+        setContentView(R.layout.activity_options)
+
+        val actionBar = supportActionBar
+        actionBar!!.title = resources.getString(R.string.app_name)
+
+        change_language = findViewById(R.id.change_language)
+        change_language.setOnClickListener {
+          languageDialog()
+        }
+    }
+
+
+    private fun setLocale(lang: String){
+        val locale = Locale(lang)
+        Locale.setDefault(locale)
         val config = Configuration()
-        config.locale = language.locale //TODO update to higher android version, change to config.setLocale
+        config.locale = locale //TODO update to higher android version, change to config.setLocale
         baseContext.resources.updateConfiguration(config, baseContext.resources.displayMetrics) //TODO refactor
-        val editor = getSharedPreferences("Settings", Context.MODE_PRIVATE).edit()
-        editor.putString("My_Lang", language.string)
+        val editor = getSharedPreferences("Options", Context.MODE_PRIVATE).edit()
+        editor.putString("My_Lang", lang)
         editor.apply()
     }
 
-    private fun loadLocate() {
-        val sharedPreferences = getSharedPreferences ( name: "Sett")
-
+    private fun loadLocale() {
+        val sharedPreferences = getSharedPreferences( "Options", Activity.MODE_PRIVATE)
+        val language = sharedPreferences.getString ( "My_Lang", "")
+        if (language != null) {
+            setLocale(language)
+        }
     }
 
     fun languageDialog(){
@@ -38,10 +54,10 @@ class OptionsActivity : AppCompatActivity() {
         builder.setTitle(R.string.change_language)
         builder.setSingleChoiceItems(languages, -1){ dialog, which ->
             if(which == 0){
-                setLocale(Language.ENGLISH)
+                setLocale("en")
                 recreate()
             } else if(which == 1){
-                setLocale(Language.RUSSIAN)
+                setLocale("ru")
                 recreate()
             }
             dialog.dismiss()
@@ -50,13 +66,5 @@ class OptionsActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_options)
 
-        change_language = findViewById(R.id.change_language)
-        change_language.setOnClickListener {
-
-        }
-    }
 }

@@ -15,13 +15,4 @@
         android:layout_marginTop="50dp"
         android:src="@mipmap/ic_launcher_round" />
 
-    <Button
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="70dp"
-        android:backgroundTint="#888282"
-        app:icon="@android:drawable/ic_menu_manage" />
-
-
 </LinearLayout>

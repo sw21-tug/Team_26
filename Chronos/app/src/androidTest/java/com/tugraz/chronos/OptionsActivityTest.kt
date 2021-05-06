@@ -8,11 +8,14 @@ import android.widget.TimePicker
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.PickerActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
+import androidx.test.espresso.matcher.RootMatchers
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.hamcrest.Matchers
@@ -28,9 +31,9 @@ class OptionsActivityTest {
     @Before
     fun setUp() {
         Intents.init()
-        ActivityScenario.launch<MainActivity>(
+        ActivityScenario.launch<OptionsActivity>(
                 Intent(ApplicationProvider.getApplicationContext<Context>(),
-                        MainActivity::class.java))
+                        OptionsActivity::class.java))
     }
 
     @After
@@ -44,14 +47,11 @@ class OptionsActivityTest {
         onView(withId(R.id.title_options)).check(matches(isDisplayed()))
     }
 
-    @Test
-    fun checkCurrentLanguage () {
 
-    }
-
-    @Test
-    fun testLanguageChange() {
-        onView(withId(R.id.change_language)).perform(click())
-
-    }
+   // @Test
+   // fun testLanguageChange() {
+    //    onView(withId(R.id.change_language)).perform(click())
+    //    sleep(5000)
+    //    onView(withId(R.id.change_language)).check(matches(withText("Изменить язык")))
+    //}
 }

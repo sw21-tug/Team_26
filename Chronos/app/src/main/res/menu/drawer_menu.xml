@@ -15,4 +15,9 @@
         android:icon="@drawable/ic_add">
     </item>
 
+    <item   android:id="@+id/options_button"
+            android:title="@string/options"
+            android:icon="@android:drawable/ic_menu_manage">
+    </item>
+
 </menu>
