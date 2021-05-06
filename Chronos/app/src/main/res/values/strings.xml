@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Chronos</string>
+    <string name="create_task">Create a Task</string>
+    <string name="title">Title</string>
+    <string name="create">Create</string>
+    <string name="date">Date</string>
+    <string name="group">Group</string>
+    <string name="description">Description</string>
+    <string name="err_title_empty">Error: Title can\'t be empty!</string>
+    <string name="err_date_empty">Error: Date can\'t be empty!</string>
+    <string name="err_db_insert">Error: Couldn\'t insert the data into the database!</string>
+    <string name="change_language">Change Language</string>
+    <string name="options">Options</string>
+    <string name="english">English</string>
+    <string name="russian">Russian</string>
+    <string name="Group1">Group1</string>
+    <string name="Group2">Group2</string>
+    <string name="Group3">Group3</string>
+    <string name="createGroup">Add new Group</string>
+    <string name="placeholder">Placeholder</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="group_name">Group Name</string>
+    <string name="create_group">Create Group</string>
+    <string name="select_color_group">Select Color</string>
+    <string name="add_tasks_to_group">Add Tasks</string>
+</resources>
