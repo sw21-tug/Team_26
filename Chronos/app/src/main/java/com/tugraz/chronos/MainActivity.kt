@@ -1,5 +1,6 @@
 package com.tugraz.chronos
 
+import android.content.ClipData
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
@@ -8,11 +9,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.MenuItem
-import android.view.ViewGroup
+import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import android.widget.ScrollView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 import androidx.annotation.RequiresApi
@@ -24,7 +23,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.navigation.NavigationView
 import com.tugraz.chronos.model.entities.Task
 import com.tugraz.chronos.model.service.ChronosService
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -58,6 +56,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             startActivity(Intent(this, CreateTaskActivity::class.java))
             finish()
         }
+
+
     }
 
     fun sortTasks(task_list: List<Task>): List<Task> {
@@ -122,6 +122,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
 
+
     }
 
     // used for create Group Button in drawer menu
@@ -129,6 +130,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when(item.itemId) {
             R.id.createGroup -> {
                 startActivity(Intent(this, CreateGroupActivity::class.java))
+                finish()
+            }
+            R.id.options_button -> {
+                startActivity(Intent(this, OptionsActivity::class.java))
                 finish()
             }
         }
