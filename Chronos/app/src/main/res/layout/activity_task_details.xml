@@ -13,7 +13,7 @@
         android:background="@color/white">
 
         <TextView
-            android:id="@+id/tv_ct_title"
+            android:id="@+id/tv_td_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"
@@ -23,42 +23,44 @@
             android:padding="30dp"/>
 
         <TextView
-            android:id="@+id/et_ct_date"
+            android:id="@+id/tv_td_date"
             android:layout_width="390dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/chronos_edit_text"
             android:ems="10"
             android:focusable="false"
-            android:background="@drawable/chronos_edit_text"
-            android:layout_gravity="center"
+            android:importantForAutofill="no"
             android:padding="20dp"
-            android:layout_marginBottom="20dp"
-            android:importantForAutofill="no" />
+            android:textColor="@color/black" />
 
         <TextView
-            android:id="@+id/et_ct_group"
+            android:id="@+id/tv_td_group"
             android:layout_width="390dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/chronos_edit_text"
             android:ems="10"
             android:focusable="false"
-            android:background="@drawable/chronos_edit_text"
-            android:layout_gravity="center"
+            android:importantForAutofill="no"
             android:padding="20dp"
-            android:layout_marginBottom="20dp"
-            android:importantForAutofill="no" />
+            android:textColor="@color/black" />
 
         <TextView
-            android:id="@+id/et_ct_description"
+            android:id="@+id/tv_td_description"
             android:layout_width="390dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            android:autofillHints=""
+            android:background="@drawable/chronos_edit_text"
             android:ems="10"
             android:gravity="start|top"
-            android:inputType="textMultiLine"
-            android:background="@drawable/chronos_edit_text"
-            android:layout_gravity="center"
-            android:padding="20dp"
-            android:layout_marginBottom="20dp"
             android:lines="10"
-            android:autofillHints="" />
+            android:padding="20dp"
+            android:textColor="@color/black" />
 
 
     </LinearLayout>

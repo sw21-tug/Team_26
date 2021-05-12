@@ -27,9 +27,17 @@ class TaskDetailsActivity : AppCompatActivity() {
 
         val task = chronosService.getTaskById(value.toLong())
 
-        var title: TextView = findViewById(R.id.tv_ct_title)
-
+        var title: TextView = findViewById(R.id.tv_td_title)
         title.text = task.title
+
+        var date: TextView = findViewById(R.id.tv_td_date)
+        date.text = task.date
+
+        var group: TextView = findViewById(R.id.tv_td_group)
+        group.text = task.groupId.toString()
+
+        var description: TextView = findViewById(R.id.tv_td_description)
+        description.text = task.description
 
         chronosService = ChronosService(this)
 
