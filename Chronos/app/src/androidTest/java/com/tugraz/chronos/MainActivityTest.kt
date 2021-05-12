@@ -12,8 +12,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.DrawerActions.open
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -30,6 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import com.tugraz.chronos.model.entities.Task
+import com.tugraz.chronos.model.service.ChronosService
 import kotlinx.coroutines.runBlocking
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -37,7 +40,7 @@ import java.time.temporal.ChronoUnit
 @RunWith(AndroidJUnit4::class)
 class MainActivityTest {
 
-    var db: ChronosDB = ChronosDB.getTestDB(ApplicationProvider.getApplicationContext())!!
+    var chronosService: ChronosService = ChronosService(ApplicationProvider.getApplicationContext())
     val dummyTask: Task = Task(0, "TestTask", "TestDescirption", LocalDateTime.now().plusDays(1).toString())
     val modified_task: Task = Task(0, "ModifiedTitle", "ModifiedDesc", LocalDateTime.now().plusDays(2).toString())
 
@@ -50,29 +53,33 @@ class MainActivityTest {
         ActivityScenario.launch<MainActivity>(
                 Intent(ApplicationProvider.getApplicationContext<Context>(),
                         MainActivity::class.java))
+
+        chronosService.addTaskGroup("This is a Test Group!")
     }
 
     @After
-    fun tearDown() = runBlocking {
-        val taskList = db.taskDao().getAllTasks()
-        val groupList = db.taskGroupDao().getAllGroups()
+    fun tearDown() {
+//        val taskList = chronosService.getAllTasks()
+        val groupList = chronosService.getAllGroups()
 
-        for (groupEntry in groupList) {
-            for (taskEntry in groupEntry.taskList) {
-                taskEntry.groupId = 0
-                db.taskDao().updateTask(taskEntry)
-            }
-            db.taskGroupDao().deleteGroup(groupEntry.taskGroup)
-        }
+        groupList.forEach {chronosService.deleteGroupWithAllTasks(it.taskGroup)}
 
-        taskList.forEach {db.taskDao().deleteTask(it)}
+//        for (groupEntry in groupList) {
+//            for (taskEntry in groupEntry.taskList) {
+//                taskEntry.groupId = 0
+//                chronosService.addOrUpdateTask(taskEntry)
+//            }
+//            chronosService.deleteTaskGroup(groupEntry.taskGroup)
+//        }
+//
+//        taskList.forEach {chronosService.deleteTask(it)}
         Intents.release()
     }
 
     @Test
-    fun testViews() = runBlocking {
-        dummy_id = db.taskDao().insertTask(dummyTask).toInt()
-        modified_id = db.taskDao().insertTask(modified_task).toInt()
+    fun testViews() {
+        dummy_id = chronosService.addOrUpdateTask(dummyTask).taskId.toInt()
+        modified_id = chronosService.addOrUpdateTask(modified_task).taskId.toInt()
 
         onView(withId(R.id.srl_ma)).perform(swipeDown());
 
@@ -110,7 +117,7 @@ class MainActivityTest {
         onView(withId(modified_id)).check(matches(isDisplayed()))
         onView(withId(modified_id)).check(matches(withText(text)))
 
-        assert(db.taskDao().getAllTasks().size == 2)
+        assert(chronosService.getAllTasks().size == 2)
         {"Couldn't insert all tasks."}
     }
 
@@ -118,5 +125,21 @@ class MainActivityTest {
     fun testButton()  {
         onView(withId(R.id.btn_ma_add)).perform(ViewActions.click())
         Intents.intended(IntentMatchers.hasComponent(CreateTaskActivity::class.java.name))
+    }
+
+    @Test
+    fun testDrawerMenuVisible() {
+        onView(withId(R.id.drawer_layout)).perform(open())
+        onView(withId(R.id.nav_view)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testDrawerMenuWithDBGroups() {
+        val groups = chronosService.getAllGroups()
+        onView(withId(R.id.drawer_layout)).perform(open())
+
+        for (group in groups) {
+            onView(withId(R.id.nav_view)).check(matches(withText(group.taskGroup.title)))
+        }
     }
 }
