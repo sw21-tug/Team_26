@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
-        <item android:id="@+id/group1"
-            android:title="@string/Group1"/>
-        <item android:id="@+id/group2"
-            android:title="@string/Group2"/>
-        <item android:id="@+id/group3"
-            android:title="@string/Group3"/>
-    </group>
-
     <item android:id="@+id/createGroup"
         android:title="@string/createGroup"
-        android:icon="@drawable/ic_add">
+        android:icon="@drawable/ic_add"
+        android:orderInCategory="1000">
     </item>
 
     <item   android:id="@+id/options_button"
             android:title="@string/options"
-            android:icon="@android:drawable/ic_menu_manage">
+            android:icon="@android:drawable/ic_menu_manage"
+        android:orderInCategory="1001">
     </item>
 
 </menu>
