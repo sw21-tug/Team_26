@@ -51,6 +51,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         loadTasks()
+
+        // fab for CreateTaskActivity
         val fab = findViewById<FloatingActionButton>(R.id.btn_ma_add)
         fab.setOnClickListener {
             startActivity(Intent(this, CreateTaskActivity::class.java))
@@ -87,12 +89,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val input: Long = date2.until(date1, ChronoUnit.SECONDS)
 
             val days = input / 86400
-            val hours = (input % 86400 ) / 3600
-            val minutes = ((input % 86400 ) % 3600 ) / 60
-            val seconds = ((input % 86400 ) % 3600 ) % 60
+            val hours = (input % 86400) / 3600
+            val minutes = ((input % 86400) % 3600) / 60
+            val seconds = ((input % 86400) % 3600) % 60
 
             val space = "    "
-            val timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
+            val timeUntil =
+                days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
             val text = title + space + description + "\n" + timeUntil
 
             button.text = text
@@ -109,13 +112,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             linearLayout.addView(button)
         }
     }
+
     private fun initNavigationDrawer() {
         val drawer: DrawerLayout = findViewById(R.id.drawer_layout)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        val toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close)
+        val toggle = ActionBarDrawerToggle(
+            this, drawer, toolbar, R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
         drawer.addDrawerListener(toggle)
         toggle.syncState()
 
@@ -127,7 +133,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     // used for create Group Button in drawer menu
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.createGroup -> {
                 startActivity(Intent(this, CreateGroupActivity::class.java))
                 finish()
@@ -143,7 +149,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     // used for closing the drawer menu
     override fun onBackPressed() {
         val drawer: DrawerLayout = findViewById(R.id.drawer_layout)
-        if(drawer.isDrawerOpen(GravityCompat.START)){
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START)
         } else {
             super.onBackPressed()
