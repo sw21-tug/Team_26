@@ -1,5 +1,6 @@
 package com.tugraz.chronos
 
+import com.tugraz.chronos.model.entities.Task
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
@@ -18,13 +19,29 @@ import java.util.*
 
 class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
 
-    lateinit var btn_create: Button
-    lateinit var et_title: EditText
     lateinit var et_description: EditText
     lateinit var et_date: EditText
     lateinit var sp_group: Spinner
     lateinit var coordinator: CoordinatorLayout
     lateinit var chronosService: ChronosService
+
+    companion object
+    {
+        var task: Task? = null
+        lateinit var btn_create: Button
+        lateinit var et_title: EditText
+
+        fun setEditOrCreate(edit: Task?){//edit is null for task creation or not-null for edit
+            task = edit
+            edit?.let {
+                btn_create.setText(R.string.save)
+                et_title.setText(R.string.save_task)
+                return
+            }
+            btn_create.setText(R.string.create)
+            et_title.setText(R.string.create_task)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +88,7 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun setDateTime(dt: Calendar) {
-        val df: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.ENGLISH)
+        val df: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'")
         et_date.setText(df.format(dt.time))
     }
 
@@ -97,9 +114,26 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
             return
         }
 
-        val db_success = chronosService.addTask(0L, et_title.text.toString(),
-                et_description.text.toString(),
-                LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME))
+        lateinit var db_success: Task
+                if(task == null)
+                {
+                    db_success = chronosService.addTask(0L, et_title.text.toString(),
+                        et_description.text.toString(),
+                        LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME))
+                }
+        else
+                {
+                    val next_task: Task? = task
+                    next_task?.let {
+                        db_success = chronosService.addOrUpdateTask(
+                            next_task,
+                            0L,
+                            et_title.text.toString(),
+                            et_description.text.toString(),
+                            LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME)
+                        )
+                    }
+                }
 
         if (db_success.taskId == 0L)
         {
