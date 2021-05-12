@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             button.id = item.taskId.toInt()
 
             // button click logic
-            val intent = Intent(this, CreateTaskActivity::class.java)
+            val intent = Intent(this, TaskDetailsActivity::class.java)
             val b = Bundle()
             b.putInt("id", button.id)
             intent.putExtras(b) // Put id to intent
