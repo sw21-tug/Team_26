@@ -1,32 +1,28 @@
 package com.tugraz.chronos
 
-import android.content.ClipData
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.MenuItem
-import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.tugraz.chronos.model.entities.Task
 import com.tugraz.chronos.model.service.ChronosService
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.*
 
 lateinit var chronosService: ChronosService
 
@@ -58,8 +54,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             startActivity(Intent(this, CreateTaskActivity::class.java))
             finish()
         }
-
-
     }
 
     fun sortTasks(task_list: List<Task>): List<Task> {
@@ -78,8 +72,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 220)
             button.id = item.taskId.toInt()
 
+            // button click logic
+            val intent = Intent(this, CreateTaskActivity::class.java)
+            val b = Bundle()
+            b.putInt("id", button.id)
+            intent.putExtras(b) // Put id to intent
+
+            button.setOnClickListener {
+                startActivity(intent)
+                finish()
+            }
+
             val title = item.title
-            val description = item.description
+            //val description = item.description
             val date1 = LocalDateTime.parse(
                 item.date,
                 DateTimeFormatter.ISO_DATE_TIME
@@ -88,19 +93,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             val input: Long = date2.until(date1, ChronoUnit.SECONDS)
 
-            val days = input / 86400
-            val hours = (input % 86400) / 3600
-            val minutes = ((input % 86400) % 3600) / 60
-            val seconds = ((input % 86400) % 3600) % 60
+            val days = (input / 86400).toString()
+            val hours = ((input % 86400) / 3600).toString()
+            val minutes = (((input % 86400) % 3600) / 60).toString()
+            val seconds = (((input % 86400) % 3600) % 60).toString()
 
-            val space = "    "
-            val timeUntil =
-                days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
-            val text = title + space + description + "\n" + timeUntil
+            val space = "                 "
+            val timeUntil = days + "d " + hours + ":" + minutes + ":" + seconds
+            val text = title + space + timeUntil
 
             button.text = text
             button.setTextColor(Color.BLACK)
-            button.textSize = 15F
+            button.textSize = 20F
 
             if (item_counter % 2 == 0) {
                 button.setBackgroundColor(Color.LTGRAY)
