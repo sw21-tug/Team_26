@@ -4,13 +4,15 @@ package com.tugraz.chronos
 import android.content.Context
 import android.content.Intent
 import android.view.View
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.*
 import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.BoundedMatcher
@@ -100,5 +102,28 @@ class MainActivityTest {
     fun testButton()  {
         onView(withId(R.id.btn_ma_add)).perform(ViewActions.click())
         Intents.intended(IntentMatchers.hasComponent(CreateTaskActivity::class.java.name))
+    }
+
+    @Test
+    fun testDelete() = runBlocking {
+        dummy_id = db.taskDao().insertTask(dummyTask).toInt()
+        modified_id = db.taskDao().insertTask(modified_task).toInt()
+
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+
+        onView(withId(R.id.rv_ma))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<TaskItemHolder>(0,
+                GeneralSwipeAction(
+                Swipe.SLOW, GeneralLocation.CENTER_RIGHT, GeneralLocation.CENTER_LEFT, Press.FINGER
+            )))
+
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+
+        // Only modified_task should be in the list and at pos 0
+        onView(withId(R.id.rv_ma))
+            .check(matches(atPosition(0, hasDescendant(withText(modified_task.title)))))
+
+        assert(db.taskDao().getAllTasks().size == 1)
+        {"Task couldn't be deleted."}
     }
 }
