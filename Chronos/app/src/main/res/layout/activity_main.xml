@@ -33,19 +33,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ScrollView
-                android:id="@+id/sv_ma"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_ma"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                xmlns:android="http://schemas.android.com/apk/res/android">
 
-                <LinearLayout
-                    android:id="@+id/ll_ma_sv"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                </LinearLayout>
-            </ScrollView>
+            </androidx.recyclerview.widget.RecyclerView>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <LinearLayout
