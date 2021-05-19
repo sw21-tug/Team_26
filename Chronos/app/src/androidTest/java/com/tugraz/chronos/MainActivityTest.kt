@@ -56,9 +56,6 @@ class MainActivityTest {
 
     @Before
     fun setUp() {
-        val taskGrouprel = chronosService.addOrUpdateTaskGroup(dummyTaskGroup)
-        dummyTaskWithGroup.groupId = taskGrouprel.taskGroup.taskGroupId
-        chronosService.addOrUpdateTask(dummyTaskWithGroup)
         Intents.init()
         ActivityScenario.launch<MainActivity>(
                 Intent(ApplicationProvider.getApplicationContext<Context>(),
@@ -68,10 +65,10 @@ class MainActivityTest {
     @After
     fun tearDown() {
         val taskList = chronosService.getAllTasks()
-        taskList.forEach{chronosService.deleteTask(it)}
+        taskList.forEach { chronosService.deleteTask(it) }
 
         val groupList = chronosService.getAllGroups()
-        groupList.forEach{chronosService.deleteTaskGroup(it.taskGroup)}
+        groupList.forEach { chronosService.deleteTaskGroup(it.taskGroup) }
 
         Intents.release()
     }
@@ -91,7 +88,7 @@ class MainActivityTest {
     }
 
     @Test
-    fun testButton()  {
+    fun testButton() {
         onView(withId(R.id.btn_ma_add)).perform(ViewActions.click())
         Intents.intended(IntentMatchers.hasComponent(CreateTaskActivity::class.java.name))
     }
@@ -113,7 +110,12 @@ class MainActivityTest {
     }
 
     @Test
-    fun testClickTaskGroup(){
+    fun testClickTaskGroup() {
+        val taskGrouprel = chronosService.addOrUpdateTaskGroup(dummyTaskGroup)
+        dummyTaskWithGroup.groupId = taskGrouprel.taskGroup.taskGroupId
+        chronosService.addOrUpdateTask(dummyTaskWithGroup)
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+
         val groups = chronosService.getAllGroups()
         onView(withId(R.id.drawer_layout)).perform(open())
         assert(groups.isNotEmpty())
@@ -124,14 +126,19 @@ class MainActivityTest {
     }
 
     @Test
-    fun testViewTaskGroupTasks(){
+    fun testViewTaskGroupTasks() {
+        val taskGrouprel = chronosService.addOrUpdateTaskGroup(dummyTaskGroup)
+        dummyTaskWithGroup.groupId = taskGrouprel.taskGroup.taskGroupId
+        chronosService.addOrUpdateTask(dummyTaskWithGroup)
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+
         val groups = chronosService.getAllGroups()
         onView(withId(R.id.drawer_layout)).perform(open())
         assert(groups.isNotEmpty())
 
         onView(withText(groups[0].taskGroup.title)).perform(ViewActions.click())
         val tasksInGroup = groups[0].taskList
-        for (task in tasksInGroup){
+        for (task in tasksInGroup) {
             onView(withText(task.title))
         }
     }
@@ -144,18 +151,18 @@ class MainActivityTest {
         onView(withId(R.id.srl_ma)).perform(swipeDown())
 
         onView(withId(R.id.rv_ma))
-            .perform(RecyclerViewActions.actionOnItemAtPosition<TaskItemHolder>(0,
-                GeneralSwipeAction(
-                Swipe.SLOW, GeneralLocation.CENTER_RIGHT, GeneralLocation.CENTER_LEFT, Press.FINGER
-            )))
+                .perform(RecyclerViewActions.actionOnItemAtPosition<TaskItemHolder>(0,
+                        GeneralSwipeAction(
+                                Swipe.SLOW, GeneralLocation.CENTER_RIGHT, GeneralLocation.CENTER_LEFT, Press.FINGER
+                        )))
 
         onView(withId(R.id.srl_ma)).perform(swipeDown())
 
         // Only modified_task should be in the list and at pos 0
         onView(withId(R.id.rv_ma))
-            .check(matches(atPosition(0, hasDescendant(withText(modified_task.title)))))
+                .check(matches(atPosition(0, hasDescendant(withText(modified_task.title)))))
 
         assert(chronosService.getAllTasks().size == 1)
-        {"Task couldn't be deleted."}
+        { "Task couldn't be deleted." }
     }
 }
