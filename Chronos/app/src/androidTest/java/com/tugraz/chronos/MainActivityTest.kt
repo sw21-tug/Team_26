@@ -32,7 +32,6 @@ import com.tugraz.chronos.model.service.ChronosService
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-
 fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?>? {
     return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {
         override fun describeTo(description: Description) {
