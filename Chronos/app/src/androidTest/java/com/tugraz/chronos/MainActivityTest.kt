@@ -19,6 +19,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import com.tugraz.chronos.model.entities.Task
+import com.tugraz.chronos.model.entities.TaskGroup
 import com.tugraz.chronos.model.service.ChronosService
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -27,16 +28,19 @@ import java.time.temporal.ChronoUnit
 class MainActivityTest {
 
     var chronosService: ChronosService = ChronosService(ApplicationProvider.getApplicationContext())
+    val dummyTaskGroup: TaskGroup = TaskGroup("Dummy Task Group");
     val dummyTask: Task = Task(0, "TestTask", "TestDescirption", LocalDateTime.now().plusDays(1).toString())
     val modified_task: Task = Task(0, "ModifiedTitle", "ModifiedDesc", LocalDateTime.now().plusDays(2).toString())
+    val dummyTaskWithGroup: Task = Task(0, "TaskWithGroup", "TaskWithGroupDescription", LocalDateTime.now().plusDays(2).toString())
 
     var dummy_id = 0
     var modified_id = 0
 
     @Before
     fun setUp() {
-        chronosService.addTaskGroup("This is a Test Group!")
-
+        val taskGrouprel = chronosService.addOrUpdateTaskGroup(dummyTaskGroup)
+        dummyTaskWithGroup.groupId = taskGrouprel.taskGroup.taskGroupId
+        chronosService.addOrUpdateTask(dummyTaskWithGroup)
         Intents.init()
         ActivityScenario.launch<MainActivity>(
                 Intent(ApplicationProvider.getApplicationContext<Context>(),
@@ -117,4 +121,16 @@ class MainActivityTest {
             onView(withText(group.taskGroup.title))
         }
     }
+
+    @Test
+    fun testClickTaskGroup(){
+        val groups = chronosService.getAllGroups()
+        onView(withId(R.id.drawer_layout)).perform(open())
+        assert(groups.isNotEmpty())
+
+        onView(withText(groups[0].taskGroup.title)).perform(ViewActions.click())
+        Intents.intended(IntentMatchers.hasComponent(MainActivity::class.java.name))
+        Intents.intended(IntentMatchers.hasExtra("GROUP_ID", groups[0].taskGroup.taskGroupId))
+    }
+
 }
