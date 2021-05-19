@@ -1,18 +1,11 @@
 package com.tugraz.chronos
 
-
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
-import android.content.res.Resources.NotFoundException
-import android.view.View
-import android.widget.Button
-import android.widget.ScrollView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerActions.open
@@ -20,12 +13,6 @@ import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import com.tugraz.chronos.model.database.ChronosDB
-import org.hamcrest.Description
-import org.hamcrest.Matcher
-import org.hamcrest.TypeSafeMatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -33,7 +20,6 @@ import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import com.tugraz.chronos.model.entities.Task
 import com.tugraz.chronos.model.service.ChronosService
-import kotlinx.coroutines.runBlocking
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
@@ -49,30 +35,19 @@ class MainActivityTest {
 
     @Before
     fun setUp() {
+        chronosService.addTaskGroup("This is a Test Group!")
+
         Intents.init()
         ActivityScenario.launch<MainActivity>(
                 Intent(ApplicationProvider.getApplicationContext<Context>(),
                         MainActivity::class.java))
-
-        chronosService.addTaskGroup("This is a Test Group!")
     }
 
     @After
     fun tearDown() {
-//        val taskList = chronosService.getAllTasks()
         val groupList = chronosService.getAllGroups()
 
         groupList.forEach {chronosService.deleteGroupWithAllTasks(it.taskGroup)}
-
-//        for (groupEntry in groupList) {
-//            for (taskEntry in groupEntry.taskList) {
-//                taskEntry.groupId = 0
-//                chronosService.addOrUpdateTask(taskEntry)
-//            }
-//            chronosService.deleteTaskGroup(groupEntry.taskGroup)
-//        }
-//
-//        taskList.forEach {chronosService.deleteTask(it)}
         Intents.release()
     }
 
@@ -139,7 +114,7 @@ class MainActivityTest {
         onView(withId(R.id.drawer_layout)).perform(open())
 
         for (group in groups) {
-            onView(withId(R.id.nav_view)).check(matches(withText(group.taskGroup.title)))
+            onView(withText(group.taskGroup.title))
         }
     }
 }
