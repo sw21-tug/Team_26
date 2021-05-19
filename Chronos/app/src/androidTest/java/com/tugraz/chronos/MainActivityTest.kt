@@ -2,6 +2,8 @@ package com.tugraz.chronos
 
 import android.content.Context
 import android.content.Intent
+import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -11,17 +13,39 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerActions.open
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
+import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tugraz.chronos.model.database.ChronosDB
+import com.tugraz.chronos.model.entities.Task
+import kotlinx.coroutines.runBlocking
+import org.hamcrest.Description
+import org.hamcrest.Matcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.LocalDateTime
-import com.tugraz.chronos.model.entities.Task
 import com.tugraz.chronos.model.service.ChronosService
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+
+
+fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?>? {
+    return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {
+        override fun describeTo(description: Description) {
+            description.appendText("has item at position $position: ")
+            itemMatcher.describeTo(description)
+        }
+
+        override fun matchesSafely(view: RecyclerView): Boolean {
+            val viewHolder = view.findViewHolderForAdapterPosition(position)
+                    ?: // has no item on such position
+                    return false
+            return itemMatcher.matches(viewHolder.itemView)
+        }
+    }
+}
 
 @RunWith(AndroidJUnit4::class)
 class MainActivityTest {
@@ -56,41 +80,13 @@ class MainActivityTest {
         dummy_id = chronosService.addOrUpdateTask(dummyTask).taskId.toInt()
         modified_id = chronosService.addOrUpdateTask(modified_task).taskId.toInt()
 
-        onView(withId(R.id.srl_ma)).perform(swipeDown());
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
 
-        var date1 = LocalDateTime.parse(
-            dummyTask.date,
-            DateTimeFormatter.ISO_DATE_TIME
-        )
-        var date2 = LocalDateTime.now()
-        var input: Long = date2.until(date1, ChronoUnit.SECONDS)
-        var days = input / 86400
-        var hours = (input % 86400 ) / 3600
-        var minutes = ((input % 86400 ) % 3600 ) / 60
-        var seconds = ((input % 86400 ) % 3600 ) % 60
+        onView(withId(R.id.rv_ma))
+                .check(matches(atPosition(0, hasDescendant(withText(dummyTask.title)))))
 
-        val space = "    "
-        var timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
-        var text = dummyTask.title + space + dummyTask.description + "\n" + timeUntil
-
-        onView(withId(dummy_id)).check(matches(isDisplayed()))
-        onView(withId(dummy_id)).check(matches(withText(text)))
-
-        date1 = LocalDateTime.parse(
-            modified_task.date,
-            DateTimeFormatter.ISO_DATE_TIME
-        )
-        date2 = LocalDateTime.now()
-        input = date2.until(date1, ChronoUnit.SECONDS)
-        days = input / 86400
-        hours = (input % 86400 ) / 3600
-        minutes = ((input % 86400 ) % 3600 ) / 60
-        seconds = ((input % 86400 ) % 3600 ) % 60
-        timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
-        text = modified_task.title + space + modified_task.description + "\n" + timeUntil
-
-        onView(withId(modified_id)).check(matches(isDisplayed()))
-        onView(withId(modified_id)).check(matches(withText(text)))
+        onView(withId(R.id.rv_ma))
+                .check(matches(atPosition(1, hasDescendant(withText(modified_task.title)))))
 
         assert(chronosService.getAllTasks().size == 2)
         {"Couldn't insert all tasks."}
