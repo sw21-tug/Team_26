@@ -1,6 +1,11 @@
 package com.tugraz.chronos
 
+import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
+import android.graphics.*
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -13,8 +18,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -26,6 +33,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
+
 
 lateinit var chronosService: ChronosService
 
@@ -78,10 +86,34 @@ class ListAdapter(private var list: List<Task>)
     override fun getItemCount(): Int = list.size
 }
 
+abstract class SwipeToDelete(context: Context, dragDir: Int, swipeDir: Int):
+        ItemTouchHelper.SimpleCallback(dragDir, swipeDir) {
+    override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+    ): Boolean {
+        return false
+    }
+}
+
+fun drawableToBitmap(drawable: Drawable): Bitmap? {
+    if (drawable is BitmapDrawable) {
+        return drawable.bitmap
+    }
+    val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    drawable.setBounds(0, 0, canvas.width, canvas.height)
+    drawable.draw(canvas)
+    return bitmap
+}
+
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
     lateinit var list_recycler_view: RecyclerView
+    lateinit var task_list: List<Task>
+    private val p = Paint()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,19 +125,47 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         swipeRefreshLayout = findViewById(R.id.srl_ma)
         swipeRefreshLayout.setOnRefreshListener {
-            val task_list = sortTasks(chronosService.getAllTasks())
+            task_list = sortTasks(chronosService.getAllTasks())
             list_recycler_view.adapter = ListAdapter(task_list)
+            (list_recycler_view.adapter as ListAdapter).notifyDataSetChanged()
             Handler(Looper.getMainLooper()).postDelayed({
                 swipeRefreshLayout.isRefreshing = false
             }, 500)
         }
 
-        val task_list = sortTasks(chronosService.getAllTasks())
+        task_list = sortTasks(chronosService.getAllTasks())
         list_recycler_view = findViewById(R.id.rv_ma)
         list_recycler_view.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = ListAdapter(task_list)
         }
+
+        val item = object : SwipeToDelete(this, 0, ItemTouchHelper.LEFT){
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                chronosService.deleteTask(task_list[viewHolder.adapterPosition])
+                task_list = sortTasks(chronosService.getAllTasks())
+                list_recycler_view.adapter = ListAdapter(task_list)
+                (list_recycler_view.adapter as ListAdapter).notifyDataSetChanged()
+            }
+
+            override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+                val icon: Bitmap
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    val itemView = viewHolder.itemView
+                    val height = itemView.bottom.toFloat() - itemView.top.toFloat()
+                    val width = height / 3
+                    p.color = Color.parseColor("#D32F2F")
+                    val background = RectF(itemView.right.toFloat() + (dX / 4), itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
+                    c.drawRect(background, p)
+                    val d = ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, theme)
+                    icon = drawableToBitmap(d!!)!!
+                    val icon_dest = RectF(itemView.right.toFloat() - 2 * width, itemView.top.toFloat() + width, itemView.right.toFloat() - width, itemView.bottom.toFloat() - width)
+                    c.drawBitmap(icon, null, icon_dest, p)
+                }
+                super.onChildDraw(c, recyclerView, viewHolder, dX / 4, dY, actionState, isCurrentlyActive)
+            }
+        }
+        ItemTouchHelper(item).attachToRecyclerView(list_recycler_view)
 
         val fab = findViewById<FloatingActionButton>(R.id.btn_ma_add)
         fab.setOnClickListener {
