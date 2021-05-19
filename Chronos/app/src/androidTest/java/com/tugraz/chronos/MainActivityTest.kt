@@ -3,14 +3,16 @@ package com.tugraz.chronos
 import android.content.Context
 import android.content.Intent
 import android.view.View
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.*
 import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerActions.open
+import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.BoundedMatcher
@@ -112,5 +114,28 @@ class MainActivityTest {
         for (group in groups) {
             onView(withText(group.taskGroup.title))
         }
+    }
+
+    @Test
+    fun testDelete() = runBlocking {
+        dummy_id = chronosService.addOrUpdateTask(dummyTask).taskId.toInt()
+        modified_id = chronosService.addOrUpdateTask(modified_task).taskId.toInt()
+
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+
+        onView(withId(R.id.rv_ma))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<TaskItemHolder>(0,
+                GeneralSwipeAction(
+                Swipe.SLOW, GeneralLocation.CENTER_RIGHT, GeneralLocation.CENTER_LEFT, Press.FINGER
+            )))
+
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+
+        // Only modified_task should be in the list and at pos 0
+        onView(withId(R.id.rv_ma))
+            .check(matches(atPosition(0, hasDescendant(withText(modified_task.title)))))
+
+        assert(chronosService.getAllTasks().size == 1)
+        {"Task couldn't be deleted."}
     }
 }
