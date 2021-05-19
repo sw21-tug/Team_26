@@ -24,22 +24,17 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var sp_group: Spinner
     lateinit var coordinator: CoordinatorLayout
     lateinit var chronosService: ChronosService
+    lateinit var btn_create: Button
+    lateinit var et_title: EditText
+    lateinit var tv_title: TextView
+
 
     companion object
     {
         var task: Task? = null
-        lateinit var btn_create: Button
-        lateinit var et_title: EditText
-
-        fun setEditOrCreate(edit: Task?){//edit is null for task creation or not-null for edit
+        var activity: CreateTaskActivity? = null
+        fun setEditOrCreate(edit: Task?){ //edit is null for task creation or not-null for edit
             task = edit
-            edit?.let {
-                btn_create.setText(R.string.save)
-                et_title.setText(R.string.save_task)
-                return
-            }
-            btn_create.setText(R.string.create)
-            et_title.setText(R.string.create_task)
         }
     }
 
@@ -47,15 +42,16 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_task)
 
+        // init stuff
+        activity = this
         chronosService = ChronosService(this)
-
         btn_create = findViewById(R.id.btn_ct_save)
         et_title = findViewById(R.id.et_ct_title)
+        tv_title = findViewById(R.id.tv_ct_title)
         et_description = findViewById(R.id.et_ct_description)
         et_date = findViewById(R.id.et_ct_date)
         sp_group = findViewById(R.id.sp_ct_group)
         coordinator = findViewById(R.id.cl_ct)
-
         btn_create.setOnClickListener(this)
         et_date.setOnClickListener {
             pickDateTime()
@@ -65,9 +61,23 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
         for (group in chronosService.getAllGroups()) {
             groups.add(group.taskGroup.title)
         }
-
         var adapter= ArrayAdapter(this, android.R.layout.simple_list_item_1, groups)
         sp_group.adapter = adapter
+
+
+        // check if task should be created or edited
+        if (task != null) {
+            //TODO sp_group.setSelection(task?.groupId)
+            btn_create.setText(R.string.save)
+            et_title.setText(task?.title)
+            tv_title.setText(R.string.save_task)
+            et_date.setText(task?.date)
+            et_description.setText(task?.description)
+        }
+        else {
+            btn_create.setText(R.string.create)
+            tv_title.setText(R.string.create_task)
+        }
     }
 
     private fun pickDateTime() {
