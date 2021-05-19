@@ -133,4 +133,16 @@ class MainActivityTest {
         Intents.intended(IntentMatchers.hasExtra("GROUP_ID", groups[0].taskGroup.taskGroupId))
     }
 
+    @Test
+    fun testViewTaskGroupTasks(){
+        val groups = chronosService.getAllGroups()
+        onView(withId(R.id.drawer_layout)).perform(open())
+        assert(groups.isNotEmpty())
+
+        onView(withText(groups[0].taskGroup.title)).perform(ViewActions.click())
+        val tasksInGroup = groups[0].taskList
+        for (task in tasksInGroup){
+            onView(withText(task.title))
+        }
+    }
 }
