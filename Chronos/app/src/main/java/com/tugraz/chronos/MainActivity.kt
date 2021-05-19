@@ -82,8 +82,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(intent)
                 finish()
             }
-
-            val title = item.title
+            val displayed_title_length = 20
+            val title = item.title.substring(0,Math.min(item.title.length,displayed_title_length))
             //val description = item.description
             val date1 = LocalDateTime.parse(
                 item.date,
@@ -98,7 +98,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val minutes = (((input % 86400) % 3600) / 60).toString()
             val seconds = (((input % 86400) % 3600) % 60).toString()
 
-            val space = "                 "
+            var space_length= displayed_title_length + 1 - item.title.length
+            var space = "  "
+            while(space_length > 0)
+            {
+                space += "  "
+                space_length--
+            }
             val timeUntil = days + "d " + hours + ":" + minutes + ":" + seconds
             val text = title + space + timeUntil
 
