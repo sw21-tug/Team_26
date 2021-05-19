@@ -71,9 +71,14 @@ class MainActivityTest {
     @After
     fun tearDown() {
         val groupList = chronosService.getAllGroups()
-
         groupList.forEach {chronosService.deleteGroupWithAllTasks(it.taskGroup)}
+
+        val taskList = chronosService.getAllTasks()
+        taskList.forEach {chronosService.deleteTask(it)}
+
         Intents.release()
+
+
     }
 
     @Test
