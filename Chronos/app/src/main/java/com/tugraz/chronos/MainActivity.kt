@@ -67,9 +67,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun loadTasks() {
-        val task_list = sortTasks(chronosService.getAllTasks())
+        val task_list: List<Task>
+        val selectedGroupFromIntent = intent.getIntExtra("GROUP_ID", -1)
+        if (selectedGroupFromIntent != -1) {
+            task_list = sortTasks(chronosService.getTaskGroupById(selectedGroupFromIntent.toLong()).taskList)
+        }
+        else {
+            task_list = sortTasks(chronosService.getAllTasks())
+        }
         val linearLayout: LinearLayout = findViewById(R.id.ll_ma_sv)
         linearLayout.removeAllViews()
+
         var item_counter = 0
         for (item in task_list) {
 
@@ -114,13 +122,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun loadGroups() {
         val group_list = chronosService.getAllGroups()
-        val group_count = 1
+        var group_count = 1
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
 
         val menu = navigationView.menu
         for (group in group_list) {
-            menu.add(1, group_count, group_count, group.taskGroup.title)
+            menu.add(1, group.taskGroup.taskGroupId.toInt(), group_count, group.taskGroup.title)
+            group_count++
         }
     }
     private fun initNavigationDrawer() {
@@ -144,11 +153,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when(item.itemId) {
             R.id.createGroup -> {
                 startActivity(Intent(this, CreateGroupActivity::class.java))
-                finish()
             }
             R.id.options_button -> {
                 startActivity(Intent(this, OptionsActivity::class.java))
-                finish()
+            }
+            else -> {
+                val intent = Intent(this, MainActivity::class.java)
+                intent.putExtra("GROUP_ID", item.itemId)
+                startActivity(intent)
             }
         }
         return true

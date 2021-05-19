@@ -28,13 +28,10 @@ import java.time.temporal.ChronoUnit
 class MainActivityTest {
 
     var chronosService: ChronosService = ChronosService(ApplicationProvider.getApplicationContext())
-    val dummyTaskGroup: TaskGroup = TaskGroup("Dummy Task Group");
-    val dummyTask: Task = Task(0, "TestTask", "TestDescirption", LocalDateTime.now().plusDays(1).toString())
+    val dummyTaskGroup: TaskGroup = TaskGroup("Dummy Task Group")
+    val dummyTask: Task = Task(0, "TestTask", "TestDescription", LocalDateTime.now().plusDays(1).toString())
     val modified_task: Task = Task(0, "ModifiedTitle", "ModifiedDesc", LocalDateTime.now().plusDays(2).toString())
     val dummyTaskWithGroup: Task = Task(0, "TaskWithGroup", "TaskWithGroupDescription", LocalDateTime.now().plusDays(2).toString())
-
-    var dummy_id = 0
-    var modified_id = 0
 
     @Before
     fun setUp() {
@@ -49,16 +46,19 @@ class MainActivityTest {
 
     @After
     fun tearDown() {
-        val groupList = chronosService.getAllGroups()
+        val taskList = chronosService.getAllTasks()
+        taskList.forEach{chronosService.deleteTask(it)}
 
-        groupList.forEach {chronosService.deleteGroupWithAllTasks(it.taskGroup)}
+        val groupList = chronosService.getAllGroups()
+        groupList.forEach{chronosService.deleteTaskGroup(it.taskGroup)}
+
         Intents.release()
     }
 
     @Test
     fun testViews() {
-        dummy_id = chronosService.addOrUpdateTask(dummyTask).taskId.toInt()
-        modified_id = chronosService.addOrUpdateTask(modified_task).taskId.toInt()
+        val dummy_id = chronosService.addOrUpdateTask(dummyTask).taskId.toInt()
+        val modified_id = chronosService.addOrUpdateTask(modified_task).taskId.toInt()
 
         onView(withId(R.id.srl_ma)).perform(swipeDown());
 
@@ -95,9 +95,6 @@ class MainActivityTest {
 
         onView(withId(modified_id)).check(matches(isDisplayed()))
         onView(withId(modified_id)).check(matches(withText(text)))
-
-        assert(chronosService.getAllTasks().size == 2)
-        {"Couldn't insert all tasks."}
     }
 
     @Test
@@ -130,7 +127,7 @@ class MainActivityTest {
 
         onView(withText(groups[0].taskGroup.title)).perform(ViewActions.click())
         Intents.intended(IntentMatchers.hasComponent(MainActivity::class.java.name))
-        Intents.intended(IntentMatchers.hasExtra("GROUP_ID", groups[0].taskGroup.taskGroupId))
+        Intents.intended(IntentMatchers.hasExtra("GROUP_ID", groups[0].taskGroup.taskGroupId.toInt()))
     }
 
     @Test
