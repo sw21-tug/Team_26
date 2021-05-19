@@ -45,12 +45,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         swipeRefreshLayout = findViewById(R.id.srl_ma)
         swipeRefreshLayout.setOnRefreshListener {
             loadTasks()
+            loadGroups()
             Handler(Looper.getMainLooper()).postDelayed({
                 swipeRefreshLayout.isRefreshing = false
             }, 500)
         }
 
         loadTasks()
+        loadGroups()
         val fab = findViewById<FloatingActionButton>(R.id.btn_ma_add)
         fab.setOnClickListener {
             startActivity(Intent(this, CreateTaskActivity::class.java))
@@ -107,6 +109,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             item_counter += 1
             linearLayout.addView(button)
+        }
+    }
+
+    fun loadGroups() {
+        val group_list = chronosService.getAllGroups()
+        val group_count = 1
+
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+
+        val menu = navigationView.menu
+        for (group in group_list) {
+            menu.add(1, group_count, group_count, group.taskGroup.title)
         }
     }
     private fun initNavigationDrawer() {
