@@ -111,20 +111,20 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         lateinit var db_success: Task
+        var groupId: Long = 0
+        for (group in chronosService.getAllGroups()) {
+            if (group.taskGroup.title == sp_group.selectedItem.toString()) {
+                groupId = group.taskGroup.taskGroupId
+                break
+            }
+        }
         if (task == null) {
             db_success = chronosService.addTask(
-                0L, et_title.text.toString(),
+                groupId, et_title.text.toString(),
                 et_description.text.toString(),
                 LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME)
             )
         } else {
-            var groupId: Long = 0
-            for (group in chronosService.getAllGroups()) {
-                if (group.taskGroup.title == sp_group.selectedItem.toString()) {
-                    groupId = group.taskGroup.taskGroupId
-                    break
-                }
-            }
             val next_task: Task? = task
             next_task?.let {
                 db_success = chronosService.addOrUpdateTask(
