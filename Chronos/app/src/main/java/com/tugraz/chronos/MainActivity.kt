@@ -173,6 +173,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 CreateTaskActivity.setEditOrCreate(task_list[viewHolder.adapterPosition])
                 startActivity(Intent(this@MainActivity, CreateTaskActivity::class.java))
+                task_list = sortTasks(chronosService.getAllTasks())
+                list_recycler_view.adapter = ListAdapter(task_list)
             }
 
             override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
@@ -226,6 +228,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close)
         drawer.addDrawerListener(toggle)
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         toggle.syncState()
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
