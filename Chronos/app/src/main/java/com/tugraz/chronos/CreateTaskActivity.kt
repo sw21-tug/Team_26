@@ -25,13 +25,12 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
     lateinit var coordinator: CoordinatorLayout
     lateinit var chronosService: ChronosService
 
-    companion object
-    {
+    companion object {
         var task: Task? = null
         lateinit var btn_create: Button
         lateinit var et_title: EditText
 
-        fun setEditOrCreate(edit: Task?){//edit is null for task creation or not-null for edit
+        fun setEditOrCreate(edit: Task?) {//edit is null for task creation or not-null for edit
             task = edit
             edit?.let {
                 btn_create.setText(R.string.save)
@@ -66,7 +65,7 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
             groups.add(group.taskGroup.title)
         }
 
-        var adapter= ArrayAdapter(this, android.R.layout.simple_list_item_1, groups)
+        var adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, groups)
         sp_group.adapter = adapter
     }
 
@@ -93,8 +92,7 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        if (et_title.text.toString().isEmpty())
-        {
+        if (et_title.text.toString().isEmpty()) {
             Snackbar.make(
                 coordinator,
                 R.string.err_title_empty,
@@ -102,9 +100,7 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
             ).show()
 
             return
-        }
-        else if (et_date.text.toString().isEmpty())
-        {
+        } else if (et_date.text.toString().isEmpty()) {
             Snackbar.make(
                 coordinator,
                 R.string.err_date_empty,
@@ -115,28 +111,33 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         lateinit var db_success: Task
-                if(task == null)
-                {
-                    db_success = chronosService.addTask(0L, et_title.text.toString(),
-                        et_description.text.toString(),
-                        LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME))
+        if (task == null) {
+            db_success = chronosService.addTask(
+                0L, et_title.text.toString(),
+                et_description.text.toString(),
+                LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME)
+            )
+        } else {
+            var groupId: Long = 0
+            for (group in chronosService.getAllGroups()) {
+                if (group.taskGroup.title == sp_group.selectedItem.toString()) {
+                    groupId = group.taskGroup.taskGroupId
+                    break
                 }
-        else
-                {
-                    val next_task: Task? = task
-                    next_task?.let {
-                        db_success = chronosService.addOrUpdateTask(
-                            next_task,
-                            0L,
-                            et_title.text.toString(),
-                            et_description.text.toString(),
-                            LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME)
-                        )
-                    }
-                }
+            }
+            val next_task: Task? = task
+            next_task?.let {
+                db_success = chronosService.addOrUpdateTask(
+                    next_task,
+                    groupId,
+                    et_title.text.toString(),
+                    et_description.text.toString(),
+                    LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME)
+                )
+            }
+        }
 
-        if (db_success.taskId == 0L)
-        {
+        if (db_success.taskId == 0L) {
             Snackbar.make(
                 coordinator,
                 R.string.err_db_insert,
@@ -144,10 +145,8 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
             ).show()
 
             return
-        }
-        else
-        {
-            startActivity(Intent(this,MainActivity::class.java))
+        } else {
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
     }
