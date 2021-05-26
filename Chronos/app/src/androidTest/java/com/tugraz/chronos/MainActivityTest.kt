@@ -208,4 +208,18 @@ class MainActivityTest {
         assert(chronosService.getAllTasks().size == 1)
         { "Task couldn't be deleted." }
     }
+
+    @Test
+    fun testClickTaskDetails() {
+        val dummy_id = chronosService.addOrUpdateTask(dummyTask).taskId.toInt()
+
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+
+        onView(withId(R.id.rv_ma))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<TaskItemHolder>(0,
+                ViewActions.click()))
+
+        Intents.intended(IntentMatchers.hasComponent(TaskDetailsActivity::class.java.name))
+        Intents.intended(IntentMatchers.hasExtra("id", dummy_id))
+    }
 }
