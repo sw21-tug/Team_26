@@ -27,19 +27,20 @@ class TaskDetailsActivity : AppCompatActivity() {
 
         val task = chronosService.getTaskById(value.toLong())
 
-        val title: TextView = findViewById(R.id.tv_td_title)
-        title.text = task.title
+        if (task != null){
+            val title: TextView = findViewById(R.id.tv_td_title)
+            title.text = task.title
 
-        val date: TextView = findViewById(R.id.tv_td_date)
-        date.text = task.date
+            val date: TextView = findViewById(R.id.tv_td_date)
+            date.text = task.date
 
-        val group: TextView = findViewById(R.id.tv_td_group)
-        group.text = task.groupId.toString()
+            val group: TextView = findViewById(R.id.tv_td_group)
+            group.text = task.groupId.toString()
 
-        val description: TextView = findViewById(R.id.tv_td_description)
-        description.text = task.description
+            val description: TextView = findViewById(R.id.tv_td_description)
+            description.text = task.description
 
-        chronosService = ChronosService(this)
-
+            chronosService = ChronosService(this)
+        }
     }
 }
