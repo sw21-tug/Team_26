@@ -11,6 +11,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.*
 import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.DrawerActions.close
 import androidx.test.espresso.contrib.DrawerActions.open
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
@@ -28,6 +29,9 @@ import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import com.tugraz.chronos.model.entities.TaskGroup
 import com.tugraz.chronos.model.service.ChronosService
+import java.lang.Thread.sleep
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?>? {
     return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {
@@ -48,11 +52,18 @@ fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?>? {
 @RunWith(AndroidJUnit4::class)
 class MainActivityTest {
 
+    var now = LocalDateTime.now()
     var chronosService: ChronosService = ChronosService(ApplicationProvider.getApplicationContext())
     val dummyTaskGroup: TaskGroup = TaskGroup("Dummy Task Group")
-    val dummyTask: Task = Task(0, "TestTask", "TestDescription", LocalDateTime.now().plusDays(1).toString())
-    val modified_task: Task = Task(0, "ModifiedTitle", "ModifiedDesc", LocalDateTime.now().plusDays(2).toString())
+    val dummyTask: Task = Task(0, "TestTask", "TestDescription", now.plusDays(1).toString())
+    val modified_task: Task = Task(0, "ModifiedTitle", "ModifiedDesc", now.plusDays(2).toString())
     val dummyTaskWithGroup: Task = Task(0, "TaskWithGroup", "TaskWithGroupDescription", LocalDateTime.now().plusDays(2).toString())
+
+    val sortedGroupOne: TaskGroup = TaskGroup("SortedGroupOne")
+    val sortedGroupTwo: TaskGroup = TaskGroup("SortedGroupTwo")
+    val sortedTaskOne: Task = Task(0, "sortedTaskOne", "sortedTaskOne", now.plusDays(1).toString())
+    val sortedTaskTwo: Task = Task(0, "sortedTaskTwo", "sortedTaskTwo", now.plusDays(2).toString())
+
 
     @Before
     fun setUp() {
@@ -115,12 +126,16 @@ class MainActivityTest {
         dummyTaskWithGroup.groupId = taskGrouprel.taskGroup.taskGroupId
         chronosService.addOrUpdateTask(dummyTaskWithGroup)
         onView(withId(R.id.srl_ma)).perform(swipeDown())
+        now = LocalDateTime.now()
 
         val groups = chronosService.getAllGroups()
         onView(withId(R.id.drawer_layout)).perform(open())
+
         assert(groups.isNotEmpty())
 
-        onView(withText(groups[0].taskGroup.title)).perform(ViewActions.click())
+        onView(withText(dummyTaskGroup.title + "\n" +
+                dummyTaskWithGroup.title + " - " +
+                getTimeUntil(dummyTaskWithGroup, now))).perform(ViewActions.click())
         Intents.intended(IntentMatchers.hasComponent(MainActivity::class.java.name))
         Intents.intended(IntentMatchers.hasExtra("GROUP_ID", groups[0].taskGroup.taskGroupId.toInt()))
     }
@@ -136,11 +151,39 @@ class MainActivityTest {
         onView(withId(R.id.drawer_layout)).perform(open())
         assert(groups.isNotEmpty())
 
-        onView(withText(groups[0].taskGroup.title)).perform(ViewActions.click())
+        onView(withText(dummyTaskWithGroup.title)).perform(ViewActions.click())
         val tasksInGroup = groups[0].taskList
         for (task in tasksInGroup) {
             onView(withText(task.title))
         }
+    }
+
+    @Test
+    fun testSortedGroups() {
+        val group2 = chronosService.addOrUpdateTaskGroup(sortedGroupTwo)
+        val group1 = chronosService.addOrUpdateTaskGroup(sortedGroupOne)
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+
+        val groups = chronosService.getAllGroups()
+        onView(withId(R.id.drawer_layout)).perform(open())
+        assert(groups.isNotEmpty())
+
+        onView(withText(groups[0].taskGroup.title)).check(matches(isDisplayed()))
+        onView(withText(groups[1].taskGroup.title)).check(matches(isDisplayed()))
+
+        sortedTaskOne.groupId = group1.taskGroup.taskGroupId
+        sortedTaskTwo.groupId = group2.taskGroup.taskGroupId
+        chronosService.addOrUpdateTask(sortedTaskOne)
+        chronosService.addOrUpdateTask(sortedTaskTwo)
+        onView(withId(R.id.drawer_layout)).perform(close())
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+        now = LocalDateTime.now()
+
+        onView(withId(R.id.drawer_layout)).perform(open())
+        assert(groups.isNotEmpty())
+
+        onView(withText(getTimeUntil(sortedTaskOne, now))).check(matches(isDisplayed()))
+        onView(withText(getTimeUntil(sortedTaskTwo, now))).check(matches(isDisplayed()))
     }
 
     @Test
