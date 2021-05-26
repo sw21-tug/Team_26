@@ -49,25 +49,12 @@ class TaskItemHolder(inflater: LayoutInflater, parent: ViewGroup) :
 
     fun bind(task: Task) {
         val title = task.title
-        val date1 = LocalDateTime.parse(
-                task.date,
-                DateTimeFormatter.ISO_DATE_TIME
-        )
-        val date2 = LocalDateTime.now()
 
-        val input: Long = date2.until(date1, ChronoUnit.SECONDS)
-
-        val days = input / 86400
-        val hours = (input % 86400 ) / 3600
-        val minutes = ((input % 86400 ) % 3600 ) / 60
-        val seconds = ((input % 86400 ) % 3600 ) % 60
-        val timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
 
         mTitle?.text = title
-        mDate?.text = timeUntil
+        mDate?.text = getTimeUntil(task, LocalDateTime.now())
     }
 }
-
 
 class ListAdapter(private var list: List<Task>)
     : RecyclerView.Adapter<TaskItemHolder>() {
@@ -94,6 +81,22 @@ abstract class SwipeToDelete(context: Context, dragDir: Int, swipeDir: Int):
     ): Boolean {
         return false
     }
+}
+
+fun getTimeUntil(task: Task, now: LocalDateTime): String {
+    val date1 = LocalDateTime.parse(
+        task.date,
+        DateTimeFormatter.ISO_DATE_TIME
+    )
+
+    val input: Long = now.until(date1, ChronoUnit.SECONDS)
+
+    val days = input / 86400
+    val hours = (input % 86400 ) / 3600
+    val minutes = ((input % 86400 ) % 3600 ) / 60
+    val seconds = ((input % 86400 ) % 3600 ) % 60
+
+    return days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
 }
 
 fun drawableToBitmap(drawable: Drawable): Bitmap? {

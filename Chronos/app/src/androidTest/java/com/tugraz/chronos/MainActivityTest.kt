@@ -11,6 +11,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.*
 import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.DrawerActions.close
 import androidx.test.espresso.contrib.DrawerActions.open
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
@@ -28,6 +29,7 @@ import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import com.tugraz.chronos.model.entities.TaskGroup
 import com.tugraz.chronos.model.service.ChronosService
+import java.lang.Thread.sleep
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
@@ -50,7 +52,7 @@ fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?>? {
 @RunWith(AndroidJUnit4::class)
 class MainActivityTest {
 
-    val now = LocalDateTime.now()
+    var now = LocalDateTime.now()
     var chronosService: ChronosService = ChronosService(ApplicationProvider.getApplicationContext())
     val dummyTaskGroup: TaskGroup = TaskGroup("Dummy Task Group")
     val dummyTask: Task = Task(0, "TestTask", "TestDescription", now.plusDays(1).toString())
@@ -124,11 +126,16 @@ class MainActivityTest {
         dummyTaskWithGroup.groupId = taskGrouprel.taskGroup.taskGroupId
         chronosService.addOrUpdateTask(dummyTaskWithGroup)
         onView(withId(R.id.srl_ma)).perform(swipeDown())
+        now = LocalDateTime.now()
+
         val groups = chronosService.getAllGroups()
         onView(withId(R.id.drawer_layout)).perform(open())
+
         assert(groups.isNotEmpty())
 
-        onView(withText(groups[0].taskGroup.title)).perform(ViewActions.click())
+        onView(withText(dummyTaskGroup.title + "\n" +
+                dummyTaskWithGroup.title + " - " +
+                getTimeUntil(dummyTaskWithGroup, now))).perform(ViewActions.click())
         Intents.intended(IntentMatchers.hasComponent(MainActivity::class.java.name))
         Intents.intended(IntentMatchers.hasExtra("GROUP_ID", groups[0].taskGroup.taskGroupId.toInt()))
     }
@@ -144,7 +151,7 @@ class MainActivityTest {
         onView(withId(R.id.drawer_layout)).perform(open())
         assert(groups.isNotEmpty())
 
-        onView(withText(groups[0].taskGroup.title)).perform(ViewActions.click())
+        onView(withText(dummyTaskWithGroup.title)).perform(ViewActions.click())
         val tasksInGroup = groups[0].taskList
         for (task in tasksInGroup) {
             onView(withText(task.title))
@@ -168,41 +175,15 @@ class MainActivityTest {
         sortedTaskTwo.groupId = group2.taskGroup.taskGroupId
         chronosService.addOrUpdateTask(sortedTaskOne)
         chronosService.addOrUpdateTask(sortedTaskTwo)
+        onView(withId(R.id.drawer_layout)).perform(close())
         onView(withId(R.id.srl_ma)).perform(swipeDown())
+        now = LocalDateTime.now()
 
         onView(withId(R.id.drawer_layout)).perform(open())
         assert(groups.isNotEmpty())
 
-        var date1 = LocalDateTime.parse(
-            sortedTaskOne.date,
-            DateTimeFormatter.ISO_DATE_TIME
-        )
-        var input: Long = now.until(date1, ChronoUnit.SECONDS)
-
-        var days = input / 86400
-        var hours = (input % 86400 ) / 3600
-        var minutes = ((input % 86400 ) % 3600 ) / 60
-        var seconds = ((input % 86400 ) % 3600 ) % 60
-        var timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
-
-        val text1 = groups[0].taskGroup.title + "\n" + sortedTaskOne.title + "\n" + timeUntil
-
-        date1 = LocalDateTime.parse(
-            sortedTaskTwo.date,
-            DateTimeFormatter.ISO_DATE_TIME
-        )
-        input = now.until(date1, ChronoUnit.SECONDS)
-
-        days = input / 86400
-        hours = (input % 86400 ) / 3600
-        minutes = ((input % 86400 ) % 3600 ) / 60
-        seconds = ((input % 86400 ) % 3600 ) % 60
-        timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
-
-        val text2 = groups[0].taskGroup.title + "\n" + sortedTaskOne.title + "\n" + timeUntil
-
-        onView(withText(text1)).check(matches(isDisplayed()))
-        onView(withText(text2)).check(matches(isDisplayed()))
+        onView(withText(getTimeUntil(sortedTaskOne, now))).check(matches(isDisplayed()))
+        onView(withText(getTimeUntil(sortedTaskTwo, now))).check(matches(isDisplayed()))
     }
 
     @Test
