@@ -2,11 +2,11 @@ package com.tugraz.chronos
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -16,7 +16,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
@@ -28,11 +27,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.tugraz.chronos.model.entities.Task
+import com.tugraz.chronos.model.entities.TaskGroupRelation
 import com.tugraz.chronos.model.service.ChronosService
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.*
 
 
 lateinit var chronosService: ChronosService
@@ -50,25 +49,12 @@ class TaskItemHolder(inflater: LayoutInflater, parent: ViewGroup) :
 
     fun bind(task: Task) {
         val title = task.title
-        val date1 = LocalDateTime.parse(
-                task.date,
-                DateTimeFormatter.ISO_DATE_TIME
-        )
-        val date2 = LocalDateTime.now()
 
-        val input: Long = date2.until(date1, ChronoUnit.SECONDS)
-
-        val days = input / 86400
-        val hours = (input % 86400 ) / 3600
-        val minutes = ((input % 86400 ) % 3600 ) / 60
-        val seconds = ((input % 86400 ) % 3600 ) % 60
-        val timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
 
         mTitle?.text = title
-        mDate?.text = timeUntil
+        mDate?.text = getTimeUntil(task, LocalDateTime.now())
     }
 }
-
 
 class ListAdapter(private var list: List<Task>)
     : RecyclerView.Adapter<TaskItemHolder>() {
@@ -95,6 +81,22 @@ abstract class SwipeToDelete(context: Context, dragDir: Int, swipeDir: Int):
     ): Boolean {
         return false
     }
+}
+
+fun getTimeUntil(task: Task, now: LocalDateTime): String {
+    val date1 = LocalDateTime.parse(
+        task.date,
+        DateTimeFormatter.ISO_DATE_TIME
+    )
+
+    val input: Long = now.until(date1, ChronoUnit.SECONDS)
+
+    val days = input / 86400
+    val hours = (input % 86400 ) / 3600
+    val minutes = ((input % 86400 ) % 3600 ) / 60
+    val seconds = ((input % 86400 ) % 3600 ) % 60
+
+    return days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
 }
 
 fun drawableToBitmap(drawable: Drawable): Bitmap? {
@@ -126,7 +128,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         swipeRefreshLayout = findViewById(R.id.srl_ma)
         swipeRefreshLayout.setOnRefreshListener {
             loadGroups()
-            task_list = sortTasks(chronosService.getAllTasks())
+
+            val selectedGroupFromIntent = intent.getIntExtra("GROUP_ID", -1)
+            if (selectedGroupFromIntent != -1) {
+                task_list = sortTasks(chronosService.
+                getTaskGroupById(selectedGroupFromIntent.toLong()).taskList)
+            }
+            else {
+                task_list = sortTasks(chronosService.getAllTasks())
+            }
             list_recycler_view.adapter = ListAdapter(task_list)
             (list_recycler_view.adapter as ListAdapter).notifyDataSetChanged()
             Handler(Looper.getMainLooper()).postDelayed({
@@ -135,7 +145,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         loadGroups()
-        task_list = sortTasks(chronosService.getAllTasks())
+        val selectedGroupFromIntent = intent.getIntExtra("GROUP_ID", -1)
+        if (selectedGroupFromIntent != -1) {
+            task_list = sortTasks(chronosService.
+            getTaskGroupById(selectedGroupFromIntent.toLong()).taskList)
+        }
+        else {
+            task_list = sortTasks(chronosService.getAllTasks())
+        }
         list_recycler_view = findViewById(R.id.rv_ma)
         list_recycler_view.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
@@ -210,13 +227,49 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun loadGroups() {
         val group_list = chronosService.getAllGroups()
-        val group_count = 1
+        var item_count = 1
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
 
         val menu = navigationView.menu
+        menu.removeGroup(1)
+
+        val map = HashMap<TaskGroupRelation, Task> ()
+        val groups_without_tasks = mutableListOf<TaskGroupRelation>()
         for (group in group_list) {
-            menu.add(1, group_count, group_count, group.taskGroup.title)
+            if(group.taskList.isNotEmpty()){
+                val upcoming_task = sortTasks(group.taskList)[0]
+                map[group] = upcoming_task
+            } else {
+                groups_without_tasks.add(group)
+            }
+        }
+
+        val groups_sorted_by_upcoming_task = map.toList().sortedBy { (_, value) -> value.date}.toMap()
+
+        for (group_task in groups_sorted_by_upcoming_task) {
+
+            val date1 = LocalDateTime.parse(
+                group_task.value.date,
+                DateTimeFormatter.ISO_DATE_TIME
+            )
+            val date2 = LocalDateTime.now()
+
+            val input: Long = date2.until(date1, ChronoUnit.SECONDS)
+
+            val days = input / 86400
+            val hours = (input % 86400 ) / 3600
+            val minutes = ((input % 86400 ) % 3600 ) / 60
+            val seconds = ((input % 86400 ) % 3600 ) % 60
+            val timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
+
+            val text = group_task.key.taskGroup.title + "\n" + group_task.value.title + " - " + timeUntil
+            menu.add(1, group_task.key.taskGroup.taskGroupId.toInt(), item_count, text);
+            item_count++
+        }
+         for(group in groups_without_tasks){
+            menu.add(1, group.taskGroup.taskGroupId.toInt(), item_count, group.taskGroup.title)
+            item_count++
         }
     }
 
@@ -242,11 +295,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when(item.itemId) {
             R.id.createGroup -> {
                 startActivity(Intent(this, CreateGroupActivity::class.java))
-                finish()
             }
             R.id.options_button -> {
                 startActivity(Intent(this, OptionsActivity::class.java))
-                finish()
+            }
+            else -> {
+                val intent = Intent(this, MainActivity::class.java)
+                intent.putExtra("GROUP_ID", item.itemId)
+                startActivity(intent)
             }
         }
         return true
