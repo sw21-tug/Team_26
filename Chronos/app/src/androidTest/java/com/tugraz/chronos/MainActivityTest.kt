@@ -28,6 +28,8 @@ import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import com.tugraz.chronos.model.entities.TaskGroup
 import com.tugraz.chronos.model.service.ChronosService
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?>? {
     return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {
@@ -53,6 +55,12 @@ class MainActivityTest {
     val dummyTask: Task = Task(0, "TestTask", "TestDescription", LocalDateTime.now().plusDays(1).toString())
     val modified_task: Task = Task(0, "ModifiedTitle", "ModifiedDesc", LocalDateTime.now().plusDays(2).toString())
     val dummyTaskWithGroup: Task = Task(0, "TaskWithGroup", "TaskWithGroupDescription", LocalDateTime.now().plusDays(2).toString())
+
+    val sortedGroupOne: TaskGroup = TaskGroup("SortedGroupOne")
+    val sortedGroupTwo: TaskGroup = TaskGroup("SortedGroupTwo")
+    val sortedTaskOne: Task = Task(0, "sortedTaskOne", "sortedTaskOne", LocalDateTime.now().plusDays(1).toString())
+    val sortedTaskTwo: Task = Task(0, "sortedTaskTwo", "sortedTaskTwo", LocalDateTime.now().plusDays(2).toString())
+
 
     @Before
     fun setUp() {
@@ -140,6 +148,64 @@ class MainActivityTest {
         for (task in tasksInGroup) {
             onView(withText(task.title))
         }
+    }
+
+    @Test
+    fun testSortedGroups() {
+        val group2 = chronosService.addOrUpdateTaskGroup(sortedGroupTwo)
+        val group1 = chronosService.addOrUpdateTaskGroup(sortedGroupOne)
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+
+        val groups = chronosService.getAllGroups()
+        onView(withId(R.id.drawer_layout)).perform(open())
+        assert(groups.isNotEmpty())
+
+        onView(withText(groups[0].taskGroup.title)).check(matches(isDisplayed()))
+        onView(withText(groups[1].taskGroup.title)).check(matches(isDisplayed()))
+
+        sortedTaskOne.groupId = group1.taskGroup.taskGroupId
+        sortedTaskTwo.groupId = group2.taskGroup.taskGroupId
+        chronosService.addOrUpdateTask(sortedTaskOne)
+        chronosService.addOrUpdateTask(sortedTaskTwo)
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+
+        onView(withId(R.id.drawer_layout)).perform(open())
+        assert(groups.isNotEmpty())
+
+        var date1 = LocalDateTime.parse(
+            sortedTaskOne.date,
+            DateTimeFormatter.ISO_DATE_TIME
+        )
+        var date2 = LocalDateTime.now()
+
+        var input: Long = date2.until(date1, ChronoUnit.SECONDS)
+
+        var days = input / 86400
+        var hours = (input % 86400 ) / 3600
+        var minutes = ((input % 86400 ) % 3600 ) / 60
+        var seconds = ((input % 86400 ) % 3600 ) % 60
+        var timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
+
+        val text1 = groups[0].taskGroup.title + "\n" + sortedTaskOne.title + "\n" + timeUntil
+
+        date1 = LocalDateTime.parse(
+            sortedTaskTwo.date,
+            DateTimeFormatter.ISO_DATE_TIME
+        )
+        date2 = LocalDateTime.now()
+
+        input = date2.until(date1, ChronoUnit.SECONDS)
+
+        days = input / 86400
+        hours = (input % 86400 ) / 3600
+        minutes = ((input % 86400 ) % 3600 ) / 60
+        seconds = ((input % 86400 ) % 3600 ) % 60
+        timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
+
+        val text2 = groups[0].taskGroup.title + "\n" + sortedTaskOne.title + "\n" + timeUntil
+
+        onView(withText(text1)).check(matches(isDisplayed()))
+        onView(withText(text2)).check(matches(isDisplayed()))
     }
 
     @Test
