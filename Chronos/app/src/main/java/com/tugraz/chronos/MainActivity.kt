@@ -83,8 +83,15 @@ class ListAdapter(private var list: List<Task>, private var main : Context)
     override fun onBindViewHolder(holder: TaskItemHolder, position: Int) {
         val movie: Task = list[position]
         holder.bind(movie)
+
+        // button click logic
+        val intent = Intent(Intent(main, TaskDetailsActivity::class.java))
+        val b = Bundle()
+        b.putInt("id", position + 1)
+        intent.putExtras(b) // Put id to intent
+
         holder.itemView.setOnClickListener {
-            main.startActivity(Intent(main, TaskDetailsActivity::class.java))
+           main.startActivity(intent)
         }
     }
 
