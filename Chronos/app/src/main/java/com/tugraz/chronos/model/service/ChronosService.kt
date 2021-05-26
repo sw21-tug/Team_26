@@ -82,10 +82,10 @@ class ChronosService(private val context: Context) {
         }
     }
 
-    fun addTaskGroup(title: String): TaskGroupRelation {
+    fun addTaskGroup(title: String, complete: Boolean?=false, colour: String?="#ffffff"): TaskGroupRelation {
         db = ChronosDB.getChronosDB(context)
 
-        val taskGroup = TaskGroup(title)
+        val taskGroup = TaskGroup(title, colour!!)
         return runBlocking{
             val taskGroupID = db!!.taskGroupDao().insertGroup(taskGroup)
             db!!.taskGroupDao().getGroupByID(taskGroupID)

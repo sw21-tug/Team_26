@@ -26,7 +26,7 @@ class DatabaseTest {
 
     @Before
     fun setup() {
-        group = TaskGroup("This is a Test Group", false, "#ffffff")
+        group = TaskGroup("This is a Test Group", "#ffffff")
         task = Task(0, "This is a Test Task", "Description", "")
     }
 
@@ -67,7 +67,6 @@ class DatabaseTest {
 
         val dbGroup = db.taskGroupDao().getGroupByID(id).taskGroup
         assert(dbGroup.title == group.title){"The inserted and retrieved tasks are different."}
-        assert(dbGroup.complete == group.complete){"The inserted and retrieved task completion is different."}
         assert(dbGroup.colour == group.colour){"The inserted and retrieved task colour is different."}
     }
 
@@ -76,17 +75,14 @@ class DatabaseTest {
         val id = db.taskGroupDao().insertGroup(group)
 
         val title = "This is another Test Group"
-        val complete = true
         val colour = "#000000"
         val dbGroup = db.taskGroupDao().getGroupByID(id)
         dbGroup.taskGroup.title = title
-        dbGroup.taskGroup.complete = complete
         dbGroup.taskGroup.colour = colour
         db.taskGroupDao().updateGroup(dbGroup.taskGroup)
 
         val updatedDbGroup = db.taskGroupDao().getGroupByID(id).taskGroup
         assert(updatedDbGroup.title == title) {"There is a difference in the title of the modified group."}
-        assert(updatedDbGroup.complete == complete) {"There is a difference in the completion of the modified group."}
         assert(updatedDbGroup.colour == colour) {"There is a difference in the colour of the modified group."}
     }
 
@@ -115,6 +111,7 @@ class DatabaseTest {
         assert(dbTask.title == task.title) {"The inserted Task title differs from the original one."}
         assert(dbTask.description == task.description) {"The inserted Task description differs from the original one."}
         assert(dbTask.date == task.date) {"The inserted Task date differs from the original one."}
+        assert(!dbTask.complete) {"The inserted Task completion differs from the original one."}
     }
 
     @Test
@@ -125,6 +122,7 @@ class DatabaseTest {
         val title = "This is another Test Task"
         val description = "Another Description"
         val date = ""
+        val complete = !dbTask.complete
         dbTask.title = title
         dbTask.description = description
         dbTask.date = date
@@ -133,6 +131,7 @@ class DatabaseTest {
         assert(dbTask.title == title) {"There is a difference in the title of the modified task."}
         assert(dbTask.description == description) {"There is a difference in the description of the modified task."}
         assert(dbTask.date == date) {"There is a difference in the date of the modified task."}
+        assert(dbTask.complete == complete) {"There is a difference in the complete variable of the modified task."}
     }
 
     @Test
@@ -196,9 +195,11 @@ class DatabaseTest {
         val title = "This is another Test Task"
         val description = "Another description"
         val date = ""
+        val complete = !task.complete
         dbTaskOfGroup.title = title
         dbTaskOfGroup.description = description
         dbTaskOfGroup.date = date
+        dbTaskOfGroup.complete = complete
         db.taskDao().updateTask(dbTaskOfGroup)
         val modDbTask = db.taskDao().getTaskByID(taskId)
 

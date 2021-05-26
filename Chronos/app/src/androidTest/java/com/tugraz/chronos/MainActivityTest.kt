@@ -49,7 +49,7 @@ fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?>? {
 class MainActivityTest {
 
     var chronosService: ChronosService = ChronosService(ApplicationProvider.getApplicationContext())
-    val dummyTaskGroup: TaskGroup = TaskGroup("Dummy Task Group")
+    val dummyTaskGroup: TaskGroup = TaskGroup("Dummy Task Group", "#ffffff")
     val dummyTask: Task = Task(0, "TestTask", "TestDescription", LocalDateTime.now().plusDays(1).toString())
     val modified_task: Task = Task(0, "ModifiedTitle", "ModifiedDesc", LocalDateTime.now().plusDays(2).toString())
     val dummyTaskWithGroup: Task = Task(0, "TaskWithGroup", "TaskWithGroupDescription", LocalDateTime.now().plusDays(2).toString())

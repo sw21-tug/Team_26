@@ -2,6 +2,7 @@ package com.tugraz.chronos.model.dao
 
 import androidx.room.*
 import com.tugraz.chronos.model.entities.TaskGroup
+import com.tugraz.chronos.model.entities.TaskGroupPhoto
 import com.tugraz.chronos.model.entities.TaskGroupRelation
 
 @Dao
@@ -22,4 +23,27 @@ interface TaskGroupDAO{
 
     @Delete
     suspend fun deleteGroup(group: TaskGroup): Void
+
+    @Query ("SELECT * FROM TaskGroupPhoto WHERE groupId = :groupId" )
+    fun getAllPhotosFromGroup(groupId: Long): List<TaskGroupPhoto>
+
+//--------------------------------------------------------------------------------------------------
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertTaskGroupPhoto(taskGroupPhoto: TaskGroupPhoto): Long
+
+    @Update
+    fun updateTaskGroupPhoto(TaskGroupPhoto: TaskGroupPhoto)
+
+    @Delete
+    fun deleteTaskGroupPhoto(taskGroupPhoto: TaskGroupPhoto)
+
+    @Query ("DELETE FROM TaskGroupPhoto WHERE toDelete = 1")
+    fun deleteToDeletePhotos()
+
+    @Query ("SELECT * FROM TaskGroupPhoto WHERE toDelete = 1")
+    fun getToDeletePhotos(): List<TaskGroupPhoto>
+
+    @Query ("UPDATE TaskGroupPhoto SET toDelete = 0 WHERE toDelete = 1")
+    fun cancelPendingDeletes()
 }
