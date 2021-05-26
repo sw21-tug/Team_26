@@ -19,6 +19,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -40,7 +41,7 @@ lateinit var chronosService: ChronosService
 
 class TaskItemHolder(inflater: LayoutInflater, parent: ViewGroup) :
         RecyclerView.ViewHolder(inflater.inflate(R.layout.task_recycler_item, parent, false)) {
-    private var mTitle: TextView? = null
+    public var mTitle: TextView? = null
     private var mDate: TextView? = null
 
 
@@ -71,7 +72,7 @@ class TaskItemHolder(inflater: LayoutInflater, parent: ViewGroup) :
 }
 
 
-class ListAdapter(private var list: List<Task>)
+class ListAdapter(private var list: List<Task>, private var main : Context)
     : RecyclerView.Adapter<TaskItemHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskItemHolder {
@@ -82,6 +83,9 @@ class ListAdapter(private var list: List<Task>)
     override fun onBindViewHolder(holder: TaskItemHolder, position: Int) {
         val movie: Task = list[position]
         holder.bind(movie)
+        holder.itemView.setOnClickListener {
+            main.startActivity(Intent(main, TaskDetailsActivity::class.java))
+        }
     }
 
     override fun getItemCount(): Int = list.size
@@ -128,7 +132,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         swipeRefreshLayout.setOnRefreshListener {
             loadGroups()
             task_list = sortTasks(chronosService.getAllTasks())
-            list_recycler_view.adapter = ListAdapter(task_list)
+            list_recycler_view.adapter = ListAdapter(task_list, this)
             (list_recycler_view.adapter as ListAdapter).notifyDataSetChanged()
             Handler(Looper.getMainLooper()).postDelayed({
                 swipeRefreshLayout.isRefreshing = false
@@ -140,14 +144,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         list_recycler_view = findViewById(R.id.rv_ma)
         list_recycler_view.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
-            adapter = ListAdapter(task_list)
+            adapter = ListAdapter(task_list,this@MainActivity)
+
         }
 
         val item = object : SwipeToDelete(this, 0, ItemTouchHelper.LEFT){
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 chronosService.deleteTask(task_list[viewHolder.adapterPosition])
                 task_list = sortTasks(chronosService.getAllTasks())
-                list_recycler_view.adapter = ListAdapter(task_list)
+                list_recycler_view.adapter = ListAdapter(task_list,this@MainActivity)
                 (list_recycler_view.adapter as ListAdapter).notifyDataSetChanged()
             }
 
