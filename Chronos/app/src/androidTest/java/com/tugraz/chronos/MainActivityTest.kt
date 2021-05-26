@@ -124,7 +124,6 @@ class MainActivityTest {
         dummyTaskWithGroup.groupId = taskGrouprel.taskGroup.taskGroupId
         chronosService.addOrUpdateTask(dummyTaskWithGroup)
         onView(withId(R.id.srl_ma)).perform(swipeDown())
-
         val groups = chronosService.getAllGroups()
         onView(withId(R.id.drawer_layout)).perform(open())
         assert(groups.isNotEmpty())
