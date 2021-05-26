@@ -50,16 +50,17 @@ fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?>? {
 @RunWith(AndroidJUnit4::class)
 class MainActivityTest {
 
+    val now = LocalDateTime.now()
     var chronosService: ChronosService = ChronosService(ApplicationProvider.getApplicationContext())
     val dummyTaskGroup: TaskGroup = TaskGroup("Dummy Task Group")
-    val dummyTask: Task = Task(0, "TestTask", "TestDescription", LocalDateTime.now().plusDays(1).toString())
-    val modified_task: Task = Task(0, "ModifiedTitle", "ModifiedDesc", LocalDateTime.now().plusDays(2).toString())
+    val dummyTask: Task = Task(0, "TestTask", "TestDescription", now.plusDays(1).toString())
+    val modified_task: Task = Task(0, "ModifiedTitle", "ModifiedDesc", now.plusDays(2).toString())
     val dummyTaskWithGroup: Task = Task(0, "TaskWithGroup", "TaskWithGroupDescription", LocalDateTime.now().plusDays(2).toString())
 
     val sortedGroupOne: TaskGroup = TaskGroup("SortedGroupOne")
     val sortedGroupTwo: TaskGroup = TaskGroup("SortedGroupTwo")
-    val sortedTaskOne: Task = Task(0, "sortedTaskOne", "sortedTaskOne", LocalDateTime.now().plusDays(1).toString())
-    val sortedTaskTwo: Task = Task(0, "sortedTaskTwo", "sortedTaskTwo", LocalDateTime.now().plusDays(2).toString())
+    val sortedTaskOne: Task = Task(0, "sortedTaskOne", "sortedTaskOne", now.plusDays(1).toString())
+    val sortedTaskTwo: Task = Task(0, "sortedTaskTwo", "sortedTaskTwo", now.plusDays(2).toString())
 
 
     @Before
@@ -177,9 +178,7 @@ class MainActivityTest {
             sortedTaskOne.date,
             DateTimeFormatter.ISO_DATE_TIME
         )
-        var date2 = LocalDateTime.now()
-
-        var input: Long = date2.until(date1, ChronoUnit.SECONDS)
+        var input: Long = now.until(date1, ChronoUnit.SECONDS)
 
         var days = input / 86400
         var hours = (input % 86400 ) / 3600
@@ -193,9 +192,7 @@ class MainActivityTest {
             sortedTaskTwo.date,
             DateTimeFormatter.ISO_DATE_TIME
         )
-        date2 = LocalDateTime.now()
-
-        input = date2.until(date1, ChronoUnit.SECONDS)
+        input = now.until(date1, ChronoUnit.SECONDS)
 
         days = input / 86400
         hours = (input % 86400 ) / 3600
