@@ -1,4 +1,3 @@
-
 package com.tugraz.chronos
 
 import android.content.Context
@@ -38,7 +37,7 @@ lateinit var chronosService: ChronosService
 
 class TaskItemHolder(inflater: LayoutInflater, parent: ViewGroup) :
         RecyclerView.ViewHolder(inflater.inflate(R.layout.task_recycler_item, parent, false)) {
-    public var mTitle: TextView? = null
+    private var mTitle: TextView? = null
     private var mDate: TextView? = null
 
 
@@ -135,7 +134,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         swipeRefreshLayout = findViewById(R.id.srl_ma)
         swipeRefreshLayout.setOnRefreshListener {
             loadGroups()
-            task_list = sortTasks(chronosService.getAllTasks())
+
+            val selectedGroupFromIntent = intent.getIntExtra("GROUP_ID", -1)
+            if (selectedGroupFromIntent != -1) {
+                task_list = sortTasks(chronosService.
+                getTaskGroupById(selectedGroupFromIntent.toLong()).taskList)
+            }
+            else {
+                task_list = sortTasks(chronosService.getAllTasks())
+            }
             list_recycler_view.adapter = ListAdapter(task_list, this)
             (list_recycler_view.adapter as ListAdapter).notifyDataSetChanged()
             Handler(Looper.getMainLooper()).postDelayed({
@@ -144,7 +151,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         loadGroups()
-        task_list = sortTasks(chronosService.getAllTasks())
+        val selectedGroupFromIntent = intent.getIntExtra("GROUP_ID", -1)
+        if (selectedGroupFromIntent != -1) {
+            task_list = sortTasks(chronosService.
+            getTaskGroupById(selectedGroupFromIntent.toLong()).taskList)
+        }
+        else {
+            task_list = sortTasks(chronosService.getAllTasks())
+        }
         list_recycler_view = findViewById(R.id.rv_ma)
         list_recycler_view.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
@@ -192,13 +206,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun loadGroups() {
         val group_list = chronosService.getAllGroups()
-        val group_count = 1
+        var group_count = 1
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
 
         val menu = navigationView.menu
+        menu.removeGroup(1)
+
         for (group in group_list) {
-            menu.add(1, group_count, group_count, group.taskGroup.title)
+            menu.add(1, group.taskGroup.taskGroupId.toInt(), group_count, group.taskGroup.title)
+            group_count++
         }
     }
 
@@ -223,11 +240,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when(item.itemId) {
             R.id.createGroup -> {
                 startActivity(Intent(this, CreateGroupActivity::class.java))
-                finish()
             }
             R.id.options_button -> {
                 startActivity(Intent(this, OptionsActivity::class.java))
-                finish()
+            }
+            else -> {
+                val intent = Intent(this, MainActivity::class.java)
+                intent.putExtra("GROUP_ID", item.itemId)
+                startActivity(intent)
             }
         }
         return true
