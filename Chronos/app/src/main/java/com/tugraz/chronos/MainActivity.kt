@@ -292,7 +292,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close)
         drawer.addDrawerListener(toggle)
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        // not able to open the navigation drawer with this line
+        //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         toggle.syncState()
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
