@@ -25,5 +25,5 @@
     <string name="select_color_group">Select Color</string>
     <string name="add_tasks_to_group">Add Tasks</string>
     <string name="save">Save</string>
-    <string name="save_task">Save Task</string>
+    <string name="save_task">Edit Task</string>
 </resources>

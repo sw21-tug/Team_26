@@ -27,6 +27,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.tugraz.chronos.model.entities.Task
+import com.tugraz.chronos.model.entities.TaskGroupRelation
 import com.tugraz.chronos.model.service.ChronosService
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -48,25 +49,12 @@ class TaskItemHolder(inflater: LayoutInflater, parent: ViewGroup) :
 
     fun bind(task: Task) {
         val title = task.title
-        val date1 = LocalDateTime.parse(
-                task.date,
-                DateTimeFormatter.ISO_DATE_TIME
-        )
-        val date2 = LocalDateTime.now()
 
-        val input: Long = date2.until(date1, ChronoUnit.SECONDS)
-
-        val days = input / 86400
-        val hours = (input % 86400 ) / 3600
-        val minutes = ((input % 86400 ) % 3600 ) / 60
-        val seconds = ((input % 86400 ) % 3600 ) % 60
-        val timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
 
         mTitle?.text = title
-        mDate?.text = timeUntil
+        mDate?.text = getTimeUntil(task, LocalDateTime.now())
     }
 }
-
 
 class ListAdapter(private var list: List<Task>)
     : RecyclerView.Adapter<TaskItemHolder>() {
@@ -93,6 +81,22 @@ abstract class SwipeToDelete(context: Context, dragDir: Int, swipeDir: Int):
     ): Boolean {
         return false
     }
+}
+
+fun getTimeUntil(task: Task, now: LocalDateTime): String {
+    val date1 = LocalDateTime.parse(
+        task.date,
+        DateTimeFormatter.ISO_DATE_TIME
+    )
+
+    val input: Long = now.until(date1, ChronoUnit.SECONDS)
+
+    val days = input / 86400
+    val hours = (input % 86400 ) / 3600
+    val minutes = ((input % 86400 ) % 3600 ) / 60
+    val seconds = ((input % 86400 ) % 3600 ) % 60
+
+    return days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
 }
 
 fun drawableToBitmap(drawable: Drawable): Bitmap? {
@@ -182,8 +186,36 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         ItemTouchHelper(item).attachToRecyclerView(list_recycler_view)
 
+        val item_2 = object : SwipeToDelete(this, 1, ItemTouchHelper.RIGHT){
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                CreateTaskActivity.setEditOrCreate(task_list[viewHolder.adapterPosition])
+                startActivity(Intent(this@MainActivity, CreateTaskActivity::class.java))
+                task_list = sortTasks(chronosService.getAllTasks())
+                list_recycler_view.adapter = ListAdapter(task_list)
+            }
+
+            override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+                val icon: Bitmap
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    val itemView = viewHolder.itemView
+                    val height = itemView.bottom.toFloat() - itemView.top.toFloat()
+                    val width = height / 3
+                    p.color = Color.parseColor("#F9D71C")
+                    val background = RectF(itemView.left.toFloat() + (dX / 4), itemView.top.toFloat(), itemView.left.toFloat(), itemView.bottom.toFloat())
+                    c.drawRect(background, p)
+                    val d = ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, theme)
+                    icon = drawableToBitmap(d!!)!!
+                    val icon_dest = RectF(itemView.left.toFloat() - 2 * width, itemView.top.toFloat() + width, itemView.left.toFloat() - width, itemView.bottom.toFloat() - width)
+                    c.drawBitmap(icon, null, icon_dest, p)
+                }
+                super.onChildDraw(c, recyclerView, viewHolder, dX / 4, dY, actionState, isCurrentlyActive)
+            }
+        }
+        ItemTouchHelper(item_2).attachToRecyclerView(list_recycler_view)
+
         val fab = findViewById<FloatingActionButton>(R.id.btn_ma_add)
         fab.setOnClickListener {
+            CreateTaskActivity.setEditOrCreate(null)
             startActivity(Intent(this, CreateTaskActivity::class.java))
             finish()
         }
@@ -195,16 +227,49 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun loadGroups() {
         val group_list = chronosService.getAllGroups()
-        var group_count = 1
+        var item_count = 1
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
 
         val menu = navigationView.menu
         menu.removeGroup(1)
 
+        val map = HashMap<TaskGroupRelation, Task> ()
+        val groups_without_tasks = mutableListOf<TaskGroupRelation>()
         for (group in group_list) {
-            menu.add(1, group.taskGroup.taskGroupId.toInt(), group_count, group.taskGroup.title)
-            group_count++
+            if(group.taskList.isNotEmpty()){
+                val upcoming_task = sortTasks(group.taskList)[0]
+                map[group] = upcoming_task
+            } else {
+                groups_without_tasks.add(group)
+            }
+        }
+
+        val groups_sorted_by_upcoming_task = map.toList().sortedBy { (_, value) -> value.date}.toMap()
+
+        for (group_task in groups_sorted_by_upcoming_task) {
+
+            val date1 = LocalDateTime.parse(
+                group_task.value.date,
+                DateTimeFormatter.ISO_DATE_TIME
+            )
+            val date2 = LocalDateTime.now()
+
+            val input: Long = date2.until(date1, ChronoUnit.SECONDS)
+
+            val days = input / 86400
+            val hours = (input % 86400 ) / 3600
+            val minutes = ((input % 86400 ) % 3600 ) / 60
+            val seconds = ((input % 86400 ) % 3600 ) % 60
+            val timeUntil = days.toString() + "d " + hours.toString() + ":" + minutes.toString() + ":" + seconds.toString()
+
+            val text = group_task.key.taskGroup.title + "\n" + group_task.value.title + " - " + timeUntil
+            menu.add(1, group_task.key.taskGroup.taskGroupId.toInt(), item_count, text);
+            item_count++
+        }
+         for(group in groups_without_tasks){
+            menu.add(1, group.taskGroup.taskGroupId.toInt(), item_count, group.taskGroup.title)
+            item_count++
         }
     }
 
@@ -216,6 +281,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close)
         drawer.addDrawerListener(toggle)
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         toggle.syncState()
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
