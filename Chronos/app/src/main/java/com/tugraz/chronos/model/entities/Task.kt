@@ -18,5 +18,6 @@ data class Task(
                 title = _title
                 this.description = _description
                 this.date = _date
+                this.complete = _complete
         }
 }

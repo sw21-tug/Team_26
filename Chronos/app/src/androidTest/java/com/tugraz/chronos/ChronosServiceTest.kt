@@ -32,7 +32,7 @@ class ChronosServiceTest {
                 TaskGroup("This is another Test Group", "#000000"))
 
         val tempTaskList = listOf(
-                Task(0, "This is a Test Task", "Description", ""),
+                Task(0, "This is a Test Task", "Description", "", false),
                 Task(0, "This is another Test Task", "Another Description", "", true))
 
         insertEntries(tempGroupList, tempTaskList)
@@ -64,6 +64,7 @@ class ChronosServiceTest {
 
         groupList = db.taskGroupDao().getAllGroups()
         taskList = db.taskDao().getAllTasks()
+        photoList = mutableListOf<List<TaskGroupPhoto>>()
 
         val lastTask = taskList[taskList.lastIndex]
         lastTask.groupId = groupList[groupList.lastIndex].taskGroup.taskGroupId
@@ -91,7 +92,7 @@ class ChronosServiceTest {
 
     @Test
     fun testAddTaskFromService() {
-        val dbTask = chronosService.addTask(0, "This is a service test", "This is a Service Test Description", LocalDateTime.parse("-999999999-01-01T00:00:00"))
+        val dbTask = chronosService.addTask(0, "This is a service test", "This is a Service Test Description", LocalDateTime.parse("-999999999-01-01T00:00:00"), false)
 
         assert(dbTask.taskId != 0L) { "Creating and inserting a new Task via ChronosService went wrong" }
     }
@@ -134,14 +135,13 @@ class ChronosServiceTest {
         val newDescription = "This is a changed Service Description Text"
         val newDate = LocalDateTime.parse("-999999999-01-01T00:00:00")
         newDate.plusMinutes(3600)
-        var complete = false
         val updateTask = taskList[taskList.lastIndex]
+        val complete = !updateTask.complete
         val groupID = updateTask.groupId
         val sizeBefore = groupList[groupList.lastIndex].taskList.size
         val changedSizedBefore = groupList[groupList.lastIndex - 1].taskList.size
 
-        complete = !updateTask.complete
-        chronosService.addOrUpdateTask(updateTask, groupID = newGroupID, title = newTitle, description = newDescription, date = newDate)
+        chronosService.addOrUpdateTask(updateTask, groupID = newGroupID, title = newTitle, description = newDescription, date = newDate, complete=complete)
         assert(updateTask.groupId == newGroupID) { "Updating GroupID from Task via ChronosService went wrong." }
         assert(updateTask.title == newTitle) { "Updating Title from Task via ChronosService went wrong." }
         assert(updateTask.description == newDescription) { "Updating Description from Task via ChronosService went wrong." }

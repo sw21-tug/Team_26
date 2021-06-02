@@ -133,7 +133,8 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
             db_success = chronosService.addTask(
                 groupId, et_title.text.toString(),
                 et_description.text.toString(),
-                LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME)
+                LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME),
+                false
             )
         } else {
             val next_task: Task? = task
@@ -143,7 +144,8 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
                     groupId,
                     et_title.text.toString(),
                     et_description.text.toString(),
-                    LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME)
+                    LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME),
+                    false
                 )
             }
         }

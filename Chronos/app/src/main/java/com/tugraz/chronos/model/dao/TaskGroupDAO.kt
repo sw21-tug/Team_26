@@ -24,26 +24,30 @@ interface TaskGroupDAO{
     @Delete
     suspend fun deleteGroup(group: TaskGroup): Void
 
+    @Transaction
     @Query ("SELECT * FROM TaskGroupPhoto WHERE groupId = :groupId" )
-    fun getAllPhotosFromGroup(groupId: Long): List<TaskGroupPhoto>
+    suspend fun getAllPhotosFromGroup(groupId: Long): List<TaskGroupPhoto>
 
 //--------------------------------------------------------------------------------------------------
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTaskGroupPhoto(taskGroupPhoto: TaskGroupPhoto): Long
+    suspend fun insertTaskGroupPhoto(taskGroupPhoto: TaskGroupPhoto): Long
 
     @Update
-    fun updateTaskGroupPhoto(TaskGroupPhoto: TaskGroupPhoto)
+    suspend fun updateTaskGroupPhoto(TaskGroupPhoto: TaskGroupPhoto)
 
     @Delete
-    fun deleteTaskGroupPhoto(taskGroupPhoto: TaskGroupPhoto)
+    suspend fun deleteTaskGroupPhoto(taskGroupPhoto: TaskGroupPhoto)
 
+    @Transaction
     @Query ("DELETE FROM TaskGroupPhoto WHERE toDelete = 1")
-    fun deleteToDeletePhotos()
+    suspend fun deleteToDeletePhotos()
 
+    @Transaction
     @Query ("SELECT * FROM TaskGroupPhoto WHERE toDelete = 1")
-    fun getToDeletePhotos(): List<TaskGroupPhoto>
+    suspend fun getToDeletePhotos(): List<TaskGroupPhoto>
 
+    @Transaction
     @Query ("UPDATE TaskGroupPhoto SET toDelete = 0 WHERE toDelete = 1")
-    fun cancelPendingDeletes()
+    suspend fun cancelPendingDeletes()
 }

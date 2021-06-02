@@ -126,6 +126,7 @@ class DatabaseTest {
         dbTask.title = title
         dbTask.description = description
         dbTask.date = date
+        dbTask.complete = complete
         db.taskDao().updateTask(dbTask)
 
         assert(dbTask.title == title) {"There is a difference in the title of the modified task."}

@@ -12,7 +12,7 @@ import com.tugraz.chronos.model.entities.TaskGroup
 import com.tugraz.chronos.model.entities.TaskGroupPhoto
 import com.tugraz.chronos.model.entities.TaskGroupRelation
 
-@Database(entities = arrayOf(Task::class, TaskGroup::class, TaskGroupPhoto::class), version = 2, exportSchema = false)
+@Database(entities = arrayOf(Task::class, TaskGroup::class, TaskGroupPhoto::class), version = 3, exportSchema = false)
 abstract class ChronosDB : RoomDatabase() {
 
     abstract fun taskDao(): TaskDAO

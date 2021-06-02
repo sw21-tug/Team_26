@@ -12,5 +12,6 @@ data class TaskGroup (
 {
     constructor(_title: String, _colour: String?="#ffffff"): this (0L, "", _colour!!) {
         title = _title
+        this.colour = _colour
     }
 }
