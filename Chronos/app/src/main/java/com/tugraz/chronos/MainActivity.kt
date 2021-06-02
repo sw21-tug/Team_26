@@ -186,8 +186,36 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         ItemTouchHelper(item).attachToRecyclerView(list_recycler_view)
 
+        val item_2 = object : SwipeToDelete(this, 1, ItemTouchHelper.RIGHT){
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                CreateTaskActivity.setEditOrCreate(task_list[viewHolder.adapterPosition])
+                startActivity(Intent(this@MainActivity, CreateTaskActivity::class.java))
+                task_list = sortTasks(chronosService.getAllTasks())
+                list_recycler_view.adapter = ListAdapter(task_list)
+            }
+
+            override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+                val icon: Bitmap
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    val itemView = viewHolder.itemView
+                    val height = itemView.bottom.toFloat() - itemView.top.toFloat()
+                    val width = height / 3
+                    p.color = Color.parseColor("#F9D71C")
+                    val background = RectF(itemView.left.toFloat() + (dX / 4), itemView.top.toFloat(), itemView.left.toFloat(), itemView.bottom.toFloat())
+                    c.drawRect(background, p)
+                    val d = ResourcesCompat.getDrawable(resources, R.drawable.ic_delete, theme)
+                    icon = drawableToBitmap(d!!)!!
+                    val icon_dest = RectF(itemView.left.toFloat() - 2 * width, itemView.top.toFloat() + width, itemView.left.toFloat() - width, itemView.bottom.toFloat() - width)
+                    c.drawBitmap(icon, null, icon_dest, p)
+                }
+                super.onChildDraw(c, recyclerView, viewHolder, dX / 4, dY, actionState, isCurrentlyActive)
+            }
+        }
+        ItemTouchHelper(item_2).attachToRecyclerView(list_recycler_view)
+
         val fab = findViewById<FloatingActionButton>(R.id.btn_ma_add)
         fab.setOnClickListener {
+            CreateTaskActivity.setEditOrCreate(null)
             startActivity(Intent(this, CreateTaskActivity::class.java))
             finish()
         }
@@ -253,6 +281,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val toggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close)
         drawer.addDrawerListener(toggle)
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         toggle.syncState()
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)

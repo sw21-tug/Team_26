@@ -2,6 +2,7 @@ package com.tugraz.chronos
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.view.View
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
@@ -9,7 +10,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.*
-import androidx.test.espresso.action.ViewActions.swipeDown
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerActions.close
 import androidx.test.espresso.contrib.DrawerActions.open
@@ -29,6 +30,8 @@ import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import com.tugraz.chronos.model.entities.TaskGroup
 import com.tugraz.chronos.model.service.ChronosService
+import java.lang.Thread.sleep
+import java.sql.Time
 import java.lang.Thread.sleep
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -207,5 +210,42 @@ class MainActivityTest {
 
         assert(chronosService.getAllTasks().size == 1)
         { "Task couldn't be deleted." }
+    }
+
+    @Test
+    fun testEdit() {
+
+        val test_string = "Test Title"
+        val dummy_id = chronosService.addOrUpdateTask(dummyTask).taskId.toInt()
+
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+
+        onView(withId(R.id.rv_ma))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<TaskItemHolder>(0,
+                GeneralSwipeAction(
+                    Swipe.SLOW, GeneralLocation.CENTER_LEFT, GeneralLocation.CENTER_RIGHT, Press.FINGER
+                )))
+
+        Intents.intended(IntentMatchers.hasComponent(CreateTaskActivity::class.java.name))
+
+        onView(withId(R.id.tv_ct_title)).check(matches(withText(R.string.save_task)))
+        onView(withId(R.id.et_ct_title)).check(matches(withText(dummyTask.title)))
+        onView(withId(R.id.et_ct_date)).check(matches(withText(dummyTask.date)))
+        onView(withId(R.id.et_ct_description)).check(matches(withText(dummyTask.description)))
+        onView(withId(R.id.btn_ct_save)).check(matches(withText(R.string.save)))
+
+        //edit title and save
+        onView(withId(R.id.et_ct_title)).perform(clearText())
+        onView(withId(R.id.et_ct_title)).perform(typeText(test_string),
+            closeSoftKeyboard())
+        onView(withId(R.id.btn_ct_save)).perform(click())
+
+
+        Intents.intended(IntentMatchers.hasComponent(MainActivity::class.java.name))
+        onView(withId(R.id.rv_ma))
+            .check(matches(atPosition(0, hasDescendant(withText(test_string)))))
+
+        assert(chronosService.getAllTasks().size > 0)
+        {"Edit went wrong"}
     }
 }
