@@ -152,10 +152,11 @@ class MainActivityTest {
         onView(withId(R.id.srl_ma)).perform(swipeDown())
 
         val groups = chronosService.getAllGroups()
-        onView(withId(R.id.drawer_layout)).perform(open())
+        onView(withId(R.id.drawer_layout)).perform(click())
+        onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isOpen()))
         assert(groups.isNotEmpty())
 
-        onView(withText(dummyTaskWithGroup.title)).perform(ViewActions.click())
+        onView(withText(dummyTaskWithGroup.title)).perform(click())
         val tasksInGroup = groups[0].taskList
         for (task in tasksInGroup) {
             onView(withText(task.title))
