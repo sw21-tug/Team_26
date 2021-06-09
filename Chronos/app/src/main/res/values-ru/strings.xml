@@ -25,4 +25,6 @@
     <string name="create_group">Создать группу</string>
     <string name="select_color_group">Выберите цвет</string>
     <string name="add_tasks_to_group">Добавить задачи</string>
+    <string name="save">спасти</string>
+    <string name="save_task">Редактировать задачу</string>
 </resources>

@@ -2,7 +2,10 @@ package com.tugraz.chronos
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
+import android.icu.text.Transliterator
 import android.view.View
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -12,6 +15,7 @@ import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerActions.close
 import androidx.test.espresso.contrib.DrawerActions.open
+import androidx.test.espresso.contrib.DrawerMatchers
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
@@ -28,6 +32,11 @@ import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import com.tugraz.chronos.model.entities.TaskGroup
 import com.tugraz.chronos.model.service.ChronosService
+import java.lang.Thread.sleep
+import java.sql.Time
+import java.lang.Thread.sleep
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?>? {
     return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {
@@ -144,10 +153,15 @@ class MainActivityTest {
         onView(withId(R.id.srl_ma)).perform(swipeDown())
 
         val groups = chronosService.getAllGroups()
-        onView(withId(R.id.drawer_layout)).perform(open())
+        onView(withId(R.id.rv_ma))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<TaskItemHolder>(0,
+                GeneralSwipeAction(
+                    Swipe.SLOW, GeneralLocation.CENTER_LEFT , GeneralLocation.CENTER_RIGHT, Press.FINGER
+                )))
+        onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isOpen()))
         assert(groups.isNotEmpty())
 
-        onView(withText(dummyTaskWithGroup.title)).perform(ViewActions.click())
+        onView(withText(dummyTaskWithGroup.title)).perform(click())
         val tasksInGroup = groups[0].taskList
         for (task in tasksInGroup) {
             onView(withText(task.title))
@@ -207,7 +221,6 @@ class MainActivityTest {
 
     @Test
     fun testEdit() {
-
         val test_string = "Test Title"
         val dummy_id = chronosService.addOrUpdateTask(dummyTask).taskId.toInt()
 
@@ -216,9 +229,10 @@ class MainActivityTest {
         onView(withId(R.id.rv_ma))
             .perform(RecyclerViewActions.actionOnItemAtPosition<TaskItemHolder>(0,
                 GeneralSwipeAction(
-                    Swipe.SLOW, GeneralLocation.CENTER_LEFT, GeneralLocation.CENTER_RIGHT, Press.FINGER
+                    Swipe.FAST, GeneralLocation.VISIBLE_CENTER , GeneralLocation.CENTER_RIGHT, Press.FINGER
                 )))
 
+        sleep(1000)
         Intents.intended(IntentMatchers.hasComponent(CreateTaskActivity::class.java.name))
 
         onView(withId(R.id.tv_ct_title)).check(matches(withText(R.string.save_task)))
@@ -240,5 +254,19 @@ class MainActivityTest {
 
         assert(chronosService.getAllTasks().size > 0)
         {"Edit went wrong"}
+    }
+
+    @Test
+    fun testClickTaskDetails() {
+        val dummy_id = chronosService.addOrUpdateTask(dummyTask).taskId.toInt()
+
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+
+        onView(withId(R.id.rv_ma))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<TaskItemHolder>(0,
+                ViewActions.click()))
+
+        Intents.intended(IntentMatchers.hasComponent(TaskDetailsActivity::class.java.name))
+        Intents.intended(IntentMatchers.hasExtra("id", dummy_id))
     }
 }
