@@ -16,6 +16,8 @@ class TaskDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task_details)
 
+        val actionBar = supportActionBar
+        actionBar!!.title = resources.getString(R.string.app_name)
 
         chronosService = ChronosService(this)
 

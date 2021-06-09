@@ -58,6 +58,9 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
             pickDateTime()
         }
 
+        val actionBar = supportActionBar
+        actionBar!!.title = resources.getString(R.string.app_name)
+
         val groups = mutableListOf<String>(getString(R.string.group))
         for (group in chronosService.getAllGroups()) {
             groups.add(group.taskGroup.title)

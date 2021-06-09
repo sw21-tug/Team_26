@@ -11,7 +11,6 @@ import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.MenuItem
-import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.LinearLayout
@@ -35,6 +34,8 @@ import com.tugraz.chronos.model.service.ChronosService
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.*
+import kotlin.collections.HashMap
 
 
 lateinit var chronosService: ChronosService
@@ -146,12 +147,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var list_recycler_view: RecyclerView
     lateinit var task_list: List<Task>
     private val p = Paint()
+    private var current = Locale.getDefault()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initNavigationDrawer()
+        current = Locale.getDefault()
+        val actionBar = supportActionBar
+        actionBar!!.title = resources.getString(R.string.app_name)
 
 
         chronosService = ChronosService(this)
@@ -251,6 +257,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             startActivity(Intent(this, CreateTaskActivity::class.java))
             finish()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val updated = Locale.getDefault()
+        if(current != updated) recreate()
     }
 
     fun sortTasks(task_list: List<Task>): List<Task> {
