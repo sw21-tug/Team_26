@@ -19,6 +19,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        app:titleTextColor="@color/sp_white"
         android:background="@color/sp_green"
         android:elevation="4dp" />
 
@@ -56,14 +57,15 @@
             tools:ignore="UselessParent">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/btn_ma_add"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                app:backgroundTint="@color/sp_green"
-                app:srcCompat="@android:drawable/ic_input_add" />
+                    android:id="@+id/btn_ma_add"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:backgroundTint="@color/sp_green"
+                    app:srcCompat="@drawable/ic_add"
+                    app:rippleColor="#FFFFFF" />
 
         </LinearLayout>
     </RelativeLayout>
