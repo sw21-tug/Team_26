@@ -12,6 +12,7 @@
 
 
         <activity android:name=".CreateTaskActivity" />
+        <activity android:name=".TaskDetailsActivity" />
         <activity
             android:name=".SplashActivity"
             android:theme="@style/Theme.Chronos.NoActionBar">
