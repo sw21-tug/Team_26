@@ -14,6 +14,7 @@ class CreateGroupActivity : AppCompatActivity(),  View.OnClickListener {
 
     lateinit var btn_create: Button
     lateinit var et_group_name: EditText
+    lateinit var et_group_color: EditText
     lateinit var chronosService: ChronosService
     lateinit var coordinator: CoordinatorLayout
 
@@ -23,6 +24,7 @@ class CreateGroupActivity : AppCompatActivity(),  View.OnClickListener {
         btn_create = findViewById(R.id.btn_create_group)
         btn_create.setOnClickListener(this)
         et_group_name = findViewById(R.id.group_name)
+        et_group_color = findViewById(R.id.group_color)
         coordinator = findViewById(R.id.cl_ct)
         chronosService = ChronosService(this)
     }
@@ -38,7 +40,7 @@ class CreateGroupActivity : AppCompatActivity(),  View.OnClickListener {
             return
         }
 
-        val db_success = chronosService.addTaskGroup(et_group_name.text.toString()).taskGroup.taskGroupId
+        val db_success = chronosService.addTaskGroup(et_group_name.text.toString(), et_group_color.text.toString().toInt()).taskGroup.taskGroupId
 
         if (db_success.toInt() == -1)
         {

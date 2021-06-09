@@ -2,9 +2,7 @@ package com.tugraz.chronos
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.view.View
-import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -30,11 +28,6 @@ import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import com.tugraz.chronos.model.entities.TaskGroup
 import com.tugraz.chronos.model.service.ChronosService
-import java.lang.Thread.sleep
-import java.sql.Time
-import java.lang.Thread.sleep
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 
 fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?>? {
     return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {

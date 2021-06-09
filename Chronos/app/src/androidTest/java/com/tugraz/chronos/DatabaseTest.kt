@@ -9,7 +9,6 @@ import kotlinx.coroutines.*
 import com.tugraz.chronos.model.database.ChronosDB
 import com.tugraz.chronos.model.entities.Task
 import com.tugraz.chronos.model.entities.TaskGroup
-import com.tugraz.chronos.model.service.ChronosService
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

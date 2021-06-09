@@ -1,13 +1,13 @@
 package com.tugraz.chronos.model.service
 
 import android.content.Context
+import com.tugraz.chronos.R
 import com.tugraz.chronos.model.database.ChronosDB
 import com.tugraz.chronos.model.entities.Task
 import com.tugraz.chronos.model.entities.TaskGroup
 import com.tugraz.chronos.model.entities.TaskGroupRelation
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
-import java.util.*
 
 class ChronosService(private val context: Context) {
     private var db: ChronosDB? = null
@@ -82,10 +82,10 @@ class ChronosService(private val context: Context) {
         }
     }
 
-    fun addTaskGroup(title: String): TaskGroupRelation {
+    fun addTaskGroup(title: String, color: Int): TaskGroupRelation {
         db = ChronosDB.getChronosDB(context)
 
-        val taskGroup = TaskGroup(title)
+        val taskGroup = TaskGroup(title, color)
         return runBlocking{
             val taskGroupID = db!!.taskGroupDao().insertGroup(taskGroup)
             db!!.taskGroupDao().getGroupByID(taskGroupID)
