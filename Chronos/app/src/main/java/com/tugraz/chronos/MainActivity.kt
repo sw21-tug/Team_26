@@ -11,7 +11,6 @@ import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.MenuItem
-import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.LinearLayout
@@ -35,6 +34,8 @@ import com.tugraz.chronos.model.service.ChronosService
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.*
+import kotlin.collections.HashMap
 
 
 lateinit var chronosService: ChronosService
@@ -57,17 +58,20 @@ class TaskItemHolder(inflater: LayoutInflater, parent: ViewGroup) :
         mDate?.text = getTimeUntil(task, LocalDateTime.now())
         if (task.complete) {
             mChecked?.isChecked = true
-            (mChecked?.parent?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#BB86FC"))
+            (mChecked?.parent?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#5a7e74"))
+            (mDate?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#5a7e74"))
         }
 
         mChecked?.setOnClickListener {
             if ((it as CheckBox).isChecked) {
                 chronosService.addOrUpdateTask(task, complete=true)
-                (it.parent.parent as LinearLayout).setBackgroundColor(Color.parseColor("#BB86FC"))
+                (it.parent.parent as LinearLayout).setBackgroundColor(Color.parseColor("#5a7e74"))
+                (mDate?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#5a7e74"))
             }
             else {
                 chronosService.addOrUpdateTask(task, complete=false)
-                (it.parent.parent as LinearLayout).setBackgroundColor(Color.parseColor("#FFFFFF"))
+                (it.parent.parent as LinearLayout).setBackgroundColor(Color.parseColor("#48454F"))
+                (mDate?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#48454F"))
             }
         }
     }
@@ -143,12 +147,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var list_recycler_view: RecyclerView
     lateinit var task_list: List<Task>
     private val p = Paint()
+    private var current = Locale.getDefault()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initNavigationDrawer()
+        current = Locale.getDefault()
+        val actionBar = supportActionBar
+        actionBar!!.title = resources.getString(R.string.app_name)
+
 
         chronosService = ChronosService(this)
 
@@ -247,6 +257,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             startActivity(Intent(this, CreateTaskActivity::class.java))
             finish()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val updated = Locale.getDefault()
+        if(current != updated) recreate()
     }
 
     fun sortTasks(task_list: List<Task>): List<Task> {

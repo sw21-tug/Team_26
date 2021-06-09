@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/sp_dark_gray">
 
     <ImageView
         android:id="@+id/IV_Splash"
@@ -22,7 +22,7 @@
         android:textSize="20sp"
         android:textStyle="bold"
         android:gravity="center"
-        android:textColor="@color/black"
+        android:textColor="@color/sp_green"
         android:padding="30dp"/>
 
     <ProgressBar
@@ -30,5 +30,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:indeterminateTint="@color/black"/>
+        android:indeterminateTint="@color/sp_green"/>
 </LinearLayout>

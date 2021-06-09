@@ -42,6 +42,7 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_task)
 
+
         // init stuff
         activity = this
         chronosService = ChronosService(this)
@@ -56,6 +57,9 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
         et_date.setOnClickListener {
             pickDateTime()
         }
+
+        val actionBar = supportActionBar
+        actionBar!!.title = resources.getString(R.string.app_name)
 
         val groups = mutableListOf<String>(getString(R.string.group))
         for (group in chronosService.getAllGroups()) {

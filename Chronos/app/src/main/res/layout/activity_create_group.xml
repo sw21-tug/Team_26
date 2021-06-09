@@ -10,7 +10,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white">
+        android:background="@color/sp_dark_gray">
 
         <TextView
             android:id="@+id/tv_create_group"
@@ -20,7 +20,7 @@
             android:textSize="20sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:textColor="@color/black"
+            android:textColor="@color/sp_white"
             android:padding="30dp"/>
 
         <EditText
@@ -30,7 +30,8 @@
             android:ems="10"
             android:inputType="textPersonName"
             android:hint="@string/group_name"
-            android:background="@drawable/chronos_edit_text"
+            android:textColorHint="@color/sp_white"
+            android:background="@color/sp_light_gray"
             android:layout_gravity="center"
             android:padding="20dp"
             android:layout_marginBottom="20dp"/>
@@ -39,6 +40,7 @@
             android:id="@+id/btn_create_group"
             android:layout_width="390dp"
             android:layout_height="60dp"
+            android:textColor="@color/sp_white"
             android:text="@string/create_group"
             android:layout_gravity="center"
             />
