@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".MainActivity"
-    tools:openDrawer="start">
+    tools:openDrawer="start"
+    android:background="@color/sp_dark_gray">
 
 <LinearLayout
     android:layout_width="match_parent"
@@ -18,7 +19,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/white"
+        android:background="@color/sp_green"
         android:elevation="4dp" />
 
     <RelativeLayout
@@ -37,7 +38,8 @@
                 android:id="@+id/rv_ma"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                xmlns:android="http://schemas.android.com/apk/res/android">
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:background="@color/sp_dark_gray">
 
             </androidx.recyclerview.widget.RecyclerView>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
@@ -60,7 +62,7 @@
                 android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true"
-                app:backgroundTint="#FFC107"
+                app:backgroundTint="@color/sp_green"
                 app:srcCompat="@android:drawable/ic_input_add" />
 
         </LinearLayout>
@@ -78,5 +80,7 @@
         android:layout_gravity="start"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/drawer_menu"
-        app:itemMaxLines="2"/>
+        app:itemMaxLines="2"
+        android:background="@color/sp_dark_gray"
+        app:itemTextColor="@color/sp_white"/>
 </androidx.drawerlayout.widget.DrawerLayout>

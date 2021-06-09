@@ -25,6 +25,8 @@ class CreateGroupActivity : AppCompatActivity(),  View.OnClickListener {
         et_group_name = findViewById(R.id.group_name)
         coordinator = findViewById(R.id.cl_ct)
         chronosService = ChronosService(this)
+        val actionBar = supportActionBar
+        actionBar!!.title = resources.getString(R.string.app_name)
     }
 
     override fun onClick(v: View?) {

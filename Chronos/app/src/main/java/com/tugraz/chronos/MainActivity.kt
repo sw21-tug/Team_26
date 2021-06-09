@@ -133,6 +133,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         initNavigationDrawer()
 
+        val actionBar = supportActionBar
+        actionBar!!.title = resources.getString(R.string.app_name)
+
         chronosService = ChronosService(this)
 
         swipeRefreshLayout = findViewById(R.id.srl_ma)

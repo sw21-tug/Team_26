@@ -42,6 +42,9 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_task)
 
+        val actionBar = supportActionBar
+        actionBar!!.title = resources.getString(R.string.app_name)
+
         // init stuff
         activity = this
         chronosService = ChronosService(this)

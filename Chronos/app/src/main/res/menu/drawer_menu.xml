@@ -10,7 +10,7 @@
     <item   android:id="@+id/options_button"
             android:title="@string/options"
             android:icon="@android:drawable/ic_menu_manage"
-        android:orderInCategory="1001">
-    </item>
+        android:orderInCategory="1001"
+            >@color/sp_white</item>
 
 </menu>
