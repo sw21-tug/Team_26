@@ -293,8 +293,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
          for(group in groups_without_tasks){
              menu.add(1, group.taskGroup.taskGroupId.toInt(), item_count, group.taskGroup.title)
-             val menu_item : MenuItem = menu.findItem(group.taskGroup.taskGroupId.toInt());
-             menu_item.setActionView(ImageButton(this));
+             val menu_item : MenuItem = menu.findItem(group.taskGroup.taskGroupId.toInt())
+             menu_item.actionView = ImageButton(this)
              (menu_item.actionView as ImageButton).setImageResource(R.drawable.ic_edit)
              menu_item.actionView.setOnClickListener {
                  val intent = Intent(this, CreateGroupActivity::class.java)

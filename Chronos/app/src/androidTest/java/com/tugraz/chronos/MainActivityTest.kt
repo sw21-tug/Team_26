@@ -2,11 +2,7 @@ package com.tugraz.chronos
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
-import android.icu.text.Transliterator
 import android.view.View
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -14,16 +10,17 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.*
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.DrawerActions
 import androidx.test.espresso.contrib.DrawerActions.close
 import androidx.test.espresso.contrib.DrawerActions.open
 import androidx.test.espresso.contrib.DrawerMatchers
+import androidx.test.espresso.contrib.NavigationViewActions
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.material.navigation.NavigationView
 import com.tugraz.chronos.model.entities.Task
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -35,10 +32,6 @@ import java.time.LocalDateTime
 import com.tugraz.chronos.model.entities.TaskGroup
 import com.tugraz.chronos.model.service.ChronosService
 import java.lang.Thread.sleep
-import java.sql.Time
-import java.lang.Thread.sleep
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 
 fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?>? {
     return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {
@@ -276,8 +269,8 @@ class MainActivityTest {
     fun renameGroup() {
         val dummy_id = chronosService.addOrUpdateTask(dummyTask).taskId.toInt()
 
-        val taskGroupel = chronosService.addOrUpdateTaskGroup(dummyTaskGroup)
-        dummyTaskWithGroup.groupId = taskGroupel.taskGroup.taskGroupId
+        val taskGroupl = chronosService.addOrUpdateTaskGroup(dummyTaskGroup)
+        dummyTaskWithGroup.groupId = taskGroupl.taskGroup.taskGroupId
         chronosService.addOrUpdateTask(dummyTaskWithGroup)
         onView(withId(R.id.srl_ma)).perform(swipeDown())
 
@@ -286,11 +279,10 @@ class MainActivityTest {
         onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isOpen()))
         assert(groups.isNotEmpty())
 
+        // TODO This is way too hard! I have no clue how to find the button to press on!
+        onView(withId(R.id.nav_view))
+            .perform(NavigationViewActions.navigateTo(taskGroupl.taskGroup.taskGroupId.toInt()))
 
-        onView(withText(dummyTaskWithGroup.title)).perform(click())
-        val tasksInGroup = groups[0].taskList
-        for (task in tasksInGroup) {
-            onView(withText(task.title))
-        }
+        sleep(3000)
     }
 }
