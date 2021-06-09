@@ -35,13 +35,23 @@ With *TimeLog*, users can:
    
 ### Features
 
- - [TL 1] App start
- - [TL 12] Mockups
- - [TL 13] Database Wrapper
- - [TL 3] Create a Task
- - [TL 2] Task View
- - [TL 4] Task List Information
- - [TL 8] Create Task Group
- - [TL 11] Database
+- [TL 1] App start
+- [TL 2] Task View
+- [TL 3] Create a Task
+- [TL 4] Task List Information
+- [TL 5] Task Details
+- [TL 6] Edit Tasks
+- [TL 7] Delete Tasks
+- [TL 8] Create Task Group
+- [TL 9] Show Task Groups
+- [TL 10] Show tasks from a group
+- [TL 11] Database
+- [TL 12] Mockups
+- [TL 13] Database Wrapper
+- [TL 14] Change language to russian
+- [TL 15] Sorted groups with upcoming task information
+- [TL 16] Mark task as completed
+- [TL 24] Design
+
 
 
