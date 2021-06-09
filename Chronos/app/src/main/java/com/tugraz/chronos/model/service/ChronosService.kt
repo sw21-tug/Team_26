@@ -18,17 +18,17 @@ class ChronosService(private val context: Context) {
         return runBlocking { db!!.taskDao().getAllTasks() }
     }
 
-    fun addTask(group_id: Long, title: String, description: String, date: LocalDateTime): Task {
+    fun addTask(group_id: Long, title: String, description: String, date: LocalDateTime, complete: Boolean): Task {
         db = ChronosDB.getChronosDB(context)
 
-        val task = Task(group_id, title, description, date.toString())
+        val task = Task(group_id, title, description, date.toString(), complete)
         return runBlocking {
             val taskID = db!!.taskDao().insertTask(task)
             db!!.taskDao().getTaskByID(taskID)
         }
     }
 
-    fun addOrUpdateTask(task: Task, groupID: Long?=null, title: String?=null, description: String?=null, date: LocalDateTime?=null): Task {
+    fun addOrUpdateTask(task: Task, groupID: Long?=null, title: String?=null, description: String?=null, date: LocalDateTime?=null, complete: Boolean?=null): Task {
         db = ChronosDB.getChronosDB(context)
 
         val updatedTask: Task
@@ -47,6 +47,7 @@ class ChronosService(private val context: Context) {
             if (title != null) {  task.title = title }
             if (description != null) { task.description = description }
             if (date != null) { task.date = date.toString() }
+            if (complete != null) { task.complete = complete }
             updatedTask = runBlocking {
                 db!!.taskDao().updateTask(task)
                 db!!.taskDao().getTaskByID(task.taskId)
@@ -82,17 +83,17 @@ class ChronosService(private val context: Context) {
         }
     }
 
-    fun addTaskGroup(title: String): TaskGroupRelation {
+    fun addTaskGroup(title: String, colour: String?="#ffffff"): TaskGroupRelation {
         db = ChronosDB.getChronosDB(context)
 
-        val taskGroup = TaskGroup(title)
+        val taskGroup = TaskGroup(title, colour)
         return runBlocking{
             val taskGroupID = db!!.taskGroupDao().insertGroup(taskGroup)
             db!!.taskGroupDao().getGroupByID(taskGroupID)
         }
     }
 
-    fun addOrUpdateTaskGroup(taskGroup: TaskGroup, title: String?=null): TaskGroupRelation {
+    fun addOrUpdateTaskGroup(taskGroup: TaskGroup, title: String?=null, colour: String?=null): TaskGroupRelation {
         db = ChronosDB.getChronosDB(context)
 
         val updatedTaskGroup: TaskGroupRelation
@@ -105,6 +106,7 @@ class ChronosService(private val context: Context) {
         }
         else {
             if (title != null) { taskGroup.title = title }
+            if (colour != null) { taskGroup.colour = colour }
             updatedTaskGroup = runBlocking {
                 db!!.taskGroupDao().updateGroup(taskGroup)
                 db!!.taskGroupDao().getGroupByID(taskGroup.taskGroupId)

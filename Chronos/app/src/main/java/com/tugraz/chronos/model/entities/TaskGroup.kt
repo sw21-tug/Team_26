@@ -4,12 +4,14 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-class TaskGroup (
+data class TaskGroup (
     @PrimaryKey(autoGenerate = true) val taskGroupId: Long = 0,
-    var title: String
+    var title: String,
+    var colour: String
 )
 {
-    constructor(_title: String): this(0L, "") {
+    constructor(_title: String, _colour: String?="#ffffff"): this (0L, "", _colour!!) {
         title = _title
+        this.colour = _colour
     }
 }
