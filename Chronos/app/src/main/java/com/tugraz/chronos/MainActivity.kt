@@ -6,16 +6,19 @@ import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
@@ -40,19 +43,33 @@ class TaskItemHolder(inflater: LayoutInflater, parent: ViewGroup) :
         RecyclerView.ViewHolder(inflater.inflate(R.layout.task_recycler_item, parent, false)) {
     private var mTitle: TextView? = null
     private var mDate: TextView? = null
+    private var mChecked: CheckBox? = null
 
 
     init {
         mTitle = itemView.findViewById(R.id.tv_tri_title)
         mDate = itemView.findViewById(R.id.tv_tri_date)
+        mChecked = itemView.findViewById(R.id.completed_task_checkbox)
     }
 
     fun bind(task: Task) {
-        val title = task.title
-
-
-        mTitle?.text = title
+        mTitle?.text = task.title
         mDate?.text = getTimeUntil(task, LocalDateTime.now())
+        if (task.complete) {
+            mChecked?.isChecked = true
+            (mChecked?.parent?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#BB86FC"))
+        }
+
+        mChecked?.setOnClickListener {
+            if ((it as CheckBox).isChecked) {
+                chronosService.addOrUpdateTask(task, complete=true)
+                (it.parent.parent as LinearLayout).setBackgroundColor(Color.parseColor("#BB86FC"))
+            }
+            else {
+                chronosService.addOrUpdateTask(task, complete=false)
+                (it.parent.parent as LinearLayout).setBackgroundColor(Color.parseColor("#FFFFFF"))
+            }
+        }
     }
 }
 
@@ -233,7 +250,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun sortTasks(task_list: List<Task>): List<Task> {
-        return task_list.sortedBy { value -> value.date }
+        var tempList = mutableListOf<Task>()
+        var tempListComplete = mutableListOf<Task>()
+
+        for (task in task_list) {
+            if (task.complete) {
+                tempListComplete.add(task)
+            }
+            else {
+                tempList.add(task)
+            }
+        }
+
+        tempList = tempList.sortedBy { value -> value.date }.toMutableList()
+        tempListComplete = tempListComplete.sortedBy { value -> value.date }.toMutableList()
+
+        tempList.addAll(tempListComplete)
+
+        return tempList
     }
 
     fun loadGroups() {
