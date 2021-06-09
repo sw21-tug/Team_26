@@ -3,6 +3,7 @@ package com.tugraz.chronos
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.icu.text.Transliterator
 import android.view.View
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
@@ -152,7 +153,11 @@ class MainActivityTest {
         onView(withId(R.id.srl_ma)).perform(swipeDown())
 
         val groups = chronosService.getAllGroups()
-        onView(withId(R.id.drawer_layout)).perform(click())
+        onView(withId(R.id.rv_ma))
+            .perform(RecyclerViewActions.actionOnItemAtPosition<TaskItemHolder>(0,
+                GeneralSwipeAction(
+                    Swipe.SLOW, GeneralLocation.CENTER_LEFT , GeneralLocation.CENTER_RIGHT, Press.FINGER
+                )))
         onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isOpen()))
         assert(groups.isNotEmpty())
 
@@ -216,7 +221,6 @@ class MainActivityTest {
 
     @Test
     fun testEdit() {
-
         val test_string = "Test Title"
         val dummy_id = chronosService.addOrUpdateTask(dummyTask).taskId.toInt()
 
@@ -225,9 +229,10 @@ class MainActivityTest {
         onView(withId(R.id.rv_ma))
             .perform(RecyclerViewActions.actionOnItemAtPosition<TaskItemHolder>(0,
                 GeneralSwipeAction(
-                    Swipe.SLOW, GeneralLocation.CENTER_LEFT, GeneralLocation.CENTER_RIGHT, Press.FINGER
+                    Swipe.FAST, GeneralLocation.VISIBLE_CENTER , GeneralLocation.CENTER_RIGHT, Press.FINGER
                 )))
 
+        sleep(1000)
         Intents.intended(IntentMatchers.hasComponent(CreateTaskActivity::class.java.name))
 
         onView(withId(R.id.tv_ct_title)).check(matches(withText(R.string.save_task)))
