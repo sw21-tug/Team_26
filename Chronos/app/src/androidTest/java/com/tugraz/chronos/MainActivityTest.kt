@@ -5,7 +5,8 @@ import android.content.Intent
 import android.content.res.Resources
 import android.icu.text.Transliterator
 import android.view.View
-import android.widget.LinearLayout
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -13,6 +14,7 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.*
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.DrawerActions
 import androidx.test.espresso.contrib.DrawerActions.close
 import androidx.test.espresso.contrib.DrawerActions.open
 import androidx.test.espresso.contrib.DrawerMatchers
@@ -268,5 +270,27 @@ class MainActivityTest {
 
         Intents.intended(IntentMatchers.hasComponent(TaskDetailsActivity::class.java.name))
         Intents.intended(IntentMatchers.hasExtra("id", dummy_id))
+    }
+
+    @Test
+    fun renameGroup() {
+        val dummy_id = chronosService.addOrUpdateTask(dummyTask).taskId.toInt()
+
+        val taskGroupel = chronosService.addOrUpdateTaskGroup(dummyTaskGroup)
+        dummyTaskWithGroup.groupId = taskGroupel.taskGroup.taskGroupId
+        chronosService.addOrUpdateTask(dummyTaskWithGroup)
+        onView(withId(R.id.srl_ma)).perform(swipeDown())
+
+        val groups = chronosService.getAllGroups()
+        onView(withId(R.id.drawer_layout)).perform(open())
+        onView(withId(R.id.drawer_layout)).check(matches(DrawerMatchers.isOpen()))
+        assert(groups.isNotEmpty())
+
+
+        onView(withText(dummyTaskWithGroup.title)).perform(click())
+        val tasksInGroup = groups[0].taskList
+        for (task in tasksInGroup) {
+            onView(withText(task.title))
+        }
     }
 }
