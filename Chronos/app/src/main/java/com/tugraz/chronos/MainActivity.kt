@@ -57,17 +57,20 @@ class TaskItemHolder(inflater: LayoutInflater, parent: ViewGroup) :
         mDate?.text = getTimeUntil(task, LocalDateTime.now())
         if (task.complete) {
             mChecked?.isChecked = true
-            (mChecked?.parent?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#BB86FC"))
+            (mChecked?.parent?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#5a7e74"))
+            (mDate?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#5a7e74"))
         }
 
         mChecked?.setOnClickListener {
             if ((it as CheckBox).isChecked) {
                 chronosService.addOrUpdateTask(task, complete=true)
-                (it.parent.parent as LinearLayout).setBackgroundColor(Color.parseColor("#BB86FC"))
+                (it.parent.parent as LinearLayout).setBackgroundColor(Color.parseColor("#5a7e74"))
+                (mDate?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#5a7e74"))
             }
             else {
                 chronosService.addOrUpdateTask(task, complete=false)
-                (it.parent.parent as LinearLayout).setBackgroundColor(Color.parseColor("#FFFFFF"))
+                (it.parent.parent as LinearLayout).setBackgroundColor(Color.parseColor("#48454F"))
+                (mDate?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#48454F"))
             }
         }
     }
