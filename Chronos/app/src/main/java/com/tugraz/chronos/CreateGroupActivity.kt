@@ -8,6 +8,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.snackbar.Snackbar
+import com.tugraz.chronos.model.entities.TaskGroupRelation
 import com.tugraz.chronos.model.service.ChronosService
 
 class CreateGroupActivity : AppCompatActivity(),  View.OnClickListener {
@@ -26,6 +27,13 @@ class CreateGroupActivity : AppCompatActivity(),  View.OnClickListener {
         coordinator = findViewById(R.id.cl_ct)
         chronosService = ChronosService(this)
 
+        val group_id = intent.getLongExtra("GROUP_ID", -1)
+        if (group_id.toInt() != -1)
+        {
+            val group : TaskGroupRelation = chronosService.getTaskGroupById(group_id)
+            et_group_name.setText(group.taskGroup.title)
+        }
+
         val actionBar = supportActionBar
         actionBar!!.title = resources.getString(R.string.app_name)
     }
@@ -41,22 +49,34 @@ class CreateGroupActivity : AppCompatActivity(),  View.OnClickListener {
             return
         }
 
-        val db_success = chronosService.addTaskGroup(et_group_name.text.toString()).taskGroup.taskGroupId
-
-        if (db_success.toInt() == -1)
+        val group_id = intent.getLongExtra("GROUP_ID", -1)
+        if (group_id.toInt() != -1)
         {
-            Snackbar.make(
-                coordinator,
-                R.string.err_db_insert,
-                Snackbar.LENGTH_SHORT
-            ).show()
-            return
-        }
-        else
-        {
+            val group : TaskGroupRelation = chronosService.getTaskGroupById(group_id)
+            chronosService.addOrUpdateTaskGroup(group.taskGroup, et_group_name.text.toString())
             startActivity(Intent(this,MainActivity::class.java))
             finish()
         }
+        else
+        {
+            val db_success = chronosService.addTaskGroup(et_group_name.text.toString()).taskGroup.taskGroupId
+
+            if (db_success.toInt() == -1)
+            {
+                Snackbar.make(
+                    coordinator,
+                    R.string.err_db_insert,
+                    Snackbar.LENGTH_SHORT
+                ).show()
+                return
+            }
+            else
+            {
+                startActivity(Intent(this,MainActivity::class.java))
+                finish()
+            }
+        }
+
     }
 
 }

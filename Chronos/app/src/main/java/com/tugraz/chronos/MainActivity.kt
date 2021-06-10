@@ -1,10 +1,12 @@
 package com.tugraz.chronos
 
+import android.app.PendingIntent.getActivity
 import android.content.Context
 import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.media.Image
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -12,9 +14,12 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -326,11 +331,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             val text = group_task.key.taskGroup.title + "\n" + group_task.value.title + " - " + timeUntil
             menu.add(1, group_task.key.taskGroup.taskGroupId.toInt(), item_count, text);
+            val menu_item : MenuItem = menu.findItem(group_task.key.taskGroup.taskGroupId.toInt());
+            menu_item.setActionView(ImageButton(this));
+            (menu_item.actionView as ImageButton).setImageResource(R.drawable.ic_edit)
+            menu_item.actionView.setOnClickListener {
+                val intent = Intent(this, CreateGroupActivity::class.java)
+                intent.putExtra("GROUP_ID", group_task.key.taskGroup.taskGroupId)
+                startActivity(intent)
+            }
             item_count++
         }
          for(group in groups_without_tasks){
-            menu.add(1, group.taskGroup.taskGroupId.toInt(), item_count, group.taskGroup.title)
-            item_count++
+             menu.add(1, group.taskGroup.taskGroupId.toInt(), item_count, group.taskGroup.title)
+             val menu_item : MenuItem = menu.findItem(group.taskGroup.taskGroupId.toInt())
+             menu_item.actionView = ImageButton(this)
+             (menu_item.actionView as ImageButton).setImageResource(R.drawable.ic_edit)
+             menu_item.actionView.setOnClickListener {
+                 val intent = Intent(this, CreateGroupActivity::class.java)
+                 intent.putExtra("GROUP_ID", group.taskGroup.taskGroupId)
+                 startActivity(intent)
+             }
+             item_count++
         }
     }
 
@@ -348,8 +369,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
-
-
     }
 
     // used for create Group Button in drawer menu
