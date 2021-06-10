@@ -8,7 +8,6 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.media.Image
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,10 +16,13 @@ import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.CheckBox
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
@@ -37,6 +39,8 @@ import com.tugraz.chronos.model.service.ChronosService
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.*
+import kotlin.collections.HashMap
 
 
 lateinit var chronosService: ChronosService
@@ -45,19 +49,36 @@ class TaskItemHolder(inflater: LayoutInflater, parent: ViewGroup) :
         RecyclerView.ViewHolder(inflater.inflate(R.layout.task_recycler_item, parent, false)) {
     private var mTitle: TextView? = null
     private var mDate: TextView? = null
+    private var mChecked: CheckBox? = null
 
 
     init {
         mTitle = itemView.findViewById(R.id.tv_tri_title)
         mDate = itemView.findViewById(R.id.tv_tri_date)
+        mChecked = itemView.findViewById(R.id.completed_task_checkbox)
     }
 
     fun bind(task: Task) {
-        val title = task.title
-
-
-        mTitle?.text = title
+        mTitle?.text = task.title
         mDate?.text = getTimeUntil(task, LocalDateTime.now())
+        if (task.complete) {
+            mChecked?.isChecked = true
+            (mChecked?.parent?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#5a7e74"))
+            (mDate?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#5a7e74"))
+        }
+
+        mChecked?.setOnClickListener {
+            if ((it as CheckBox).isChecked) {
+                chronosService.addOrUpdateTask(task, complete=true)
+                (it.parent.parent as LinearLayout).setBackgroundColor(Color.parseColor("#5a7e74"))
+                (mDate?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#5a7e74"))
+            }
+            else {
+                chronosService.addOrUpdateTask(task, complete=false)
+                (it.parent.parent as LinearLayout).setBackgroundColor(Color.parseColor("#48454F"))
+                (mDate?.parent as LinearLayout).setBackgroundColor(Color.parseColor("#48454F"))
+            }
+        }
     }
 }
 
@@ -131,12 +152,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var list_recycler_view: RecyclerView
     lateinit var task_list: List<Task>
     private val p = Paint()
+    private var current = Locale.getDefault()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initNavigationDrawer()
+        current = Locale.getDefault()
+        val actionBar = supportActionBar
+        actionBar!!.title = resources.getString(R.string.app_name)
+
 
         chronosService = ChronosService(this)
 
@@ -237,8 +264,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        val updated = Locale.getDefault()
+        if(current != updated) recreate()
+    }
+
     fun sortTasks(task_list: List<Task>): List<Task> {
-        return task_list.sortedBy { value -> value.date }
+        var tempList = mutableListOf<Task>()
+        var tempListComplete = mutableListOf<Task>()
+
+        for (task in task_list) {
+            if (task.complete) {
+                tempListComplete.add(task)
+            }
+            else {
+                tempList.add(task)
+            }
+        }
+
+        tempList = tempList.sortedBy { value -> value.date }.toMutableList()
+        tempListComplete = tempListComplete.sortedBy { value -> value.date }.toMutableList()
+
+        tempList.addAll(tempListComplete)
+
+        return tempList
     }
 
     fun loadGroups() {

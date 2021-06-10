@@ -42,6 +42,7 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_task)
 
+
         // init stuff
         activity = this
         chronosService = ChronosService(this)
@@ -56,6 +57,9 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
         et_date.setOnClickListener {
             pickDateTime()
         }
+
+        val actionBar = supportActionBar
+        actionBar!!.title = resources.getString(R.string.app_name)
 
         val groups = mutableListOf<String>(getString(R.string.group))
         for (group in chronosService.getAllGroups()) {
@@ -133,7 +137,8 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
             db_success = chronosService.addTask(
                 groupId, et_title.text.toString(),
                 et_description.text.toString(),
-                LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME)
+                LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME),
+                false
             )
         } else {
             val next_task: Task? = task
@@ -143,7 +148,8 @@ class CreateTaskActivity : AppCompatActivity(), View.OnClickListener {
                     groupId,
                     et_title.text.toString(),
                     et_description.text.toString(),
-                    LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME)
+                    LocalDateTime.parse(et_date.text.toString(), DateTimeFormatter.ISO_DATE_TIME),
+                    false
                 )
             }
         }

@@ -9,5 +9,11 @@ data class TaskGroupRelation (
         parentColumn = "taskGroupId",
         entityColumn = "groupId"
     )
-    val taskList: List<Task>
+    val taskList: List<Task>,
+
+    @Relation(
+        parentColumn = "taskGroupId",
+        entityColumn = "groupId"
+    )
+    val photoList: List<TaskGroupPhoto>
 )

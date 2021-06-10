@@ -54,7 +54,7 @@ class MainActivityTest {
 
     var now = LocalDateTime.now()
     var chronosService: ChronosService = ChronosService(ApplicationProvider.getApplicationContext())
-    val dummyTaskGroup: TaskGroup = TaskGroup("Dummy Task Group")
+    val dummyTaskGroup: TaskGroup = TaskGroup("Dummy Task Group", "#ffffff")
     val dummyTask: Task = Task(0, "TestTask", "TestDescription", now.plusDays(1).toString())
     val modified_task: Task = Task(0, "ModifiedTitle", "ModifiedDesc", now.plusDays(2).toString())
     val dummyTaskWithGroup: Task = Task(0, "TaskWithGroup", "TaskWithGroupDescription", LocalDateTime.now().plusDays(2).toString())

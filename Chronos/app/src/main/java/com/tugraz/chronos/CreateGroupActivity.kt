@@ -33,6 +33,9 @@ class CreateGroupActivity : AppCompatActivity(),  View.OnClickListener {
             val group : TaskGroupRelation = chronosService.getTaskGroupById(group_id)
             et_group_name.setText(group.taskGroup.title)
         }
+
+        val actionBar = supportActionBar
+        actionBar!!.title = resources.getString(R.string.app_name)
     }
 
     override fun onClick(v: View?) {
