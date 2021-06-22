@@ -1,3 +1,4 @@
+
 # TimeLog
 
 ### Team 26
@@ -51,3 +52,6 @@ With *TimeLog*, users can:
 - [TL 15] Sorted groups with upcoming task information
 - [TL 16] Mark task as completed
 - [TL 24] Design
+
+
+
